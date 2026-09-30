@@ -93,4 +93,12 @@ export async function sendContactFormEmail(fields: { ad: string; telefon: string
     html: body,
     replyTo: fields.eposta || undefined,
   });
+
+  if (fields.eposta) {
+    await sendEmail({
+      to: fields.eposta,
+      subject: "Talebiniz bize ulaştı — Ortatepeler Zirai Danışmanlık",
+      html: `<p>Merhaba ${escapeHtml(fields.ad)},</p><p>İletişim formu üzerinden gönderdiğiniz talep bize ulaştı. En kısa sürede size dönüş yapacağız.</p><p>Acil bir durum varsa doğrudan <a href="tel:+905054286598">0505 428 65 98</a> numaramızdan bize ulaşabilirsiniz.</p><p>Ortatepeler Zirai Danışmanlık Ltd. Şti.</p>`,
+    });
+  }
 }
