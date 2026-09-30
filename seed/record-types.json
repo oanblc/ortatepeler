@@ -1,0 +1,198 @@
+[
+  {
+    "id": "5901b519-830b-407f-abfb-b528bbd28d34",
+    "ad": "Gübreleme",
+    "ikon": "sprout",
+    "fields": [
+      {
+        "key": "gubreTuru",
+        "label": "Gübre Türü",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "doz",
+        "label": "Doz",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "birim",
+        "label": "Birim",
+        "type": "text"
+      },
+      {
+        "key": "uygulamaSekli",
+        "label": "Uygulama Şekli",
+        "type": "select",
+        "options": [
+          "Serpme",
+          "Damla Sulama ile",
+          "Toprağa Karıştırma"
+        ]
+      },
+      {
+        "key": "amac",
+        "label": "Amaç / Hedef",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": "30d56bb8-bc63-4d33-b917-c6514c5910b2",
+    "ad": "Sulama",
+    "ikon": "droplet",
+    "fields": [
+      {
+        "key": "sure",
+        "label": "Süre (saat)",
+        "type": "number",
+        "required": true
+      },
+      {
+        "key": "yontem",
+        "label": "Yöntem",
+        "type": "select",
+        "options": [
+          "Damla",
+          "Yağmurlama",
+          "Salma"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "132b6ada-4212-4795-af92-22a74652695b",
+    "ad": "Hastalık / Zararlı",
+    "ikon": "bug",
+    "fields": [
+      {
+        "key": "etken",
+        "label": "Etken/Zararlı",
+        "type": "select",
+        "required": true,
+        "options": []
+      },
+      {
+        "key": "siddet",
+        "label": "Şiddet",
+        "type": "select",
+        "options": [
+          "Az",
+          "Orta"
+        ]
+      },
+      {
+        "key": "ilac",
+        "label": "Uygulanan İlaç",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": "4dcf1df9-2fa8-4693-b848-6e251f2a56a4",
+    "ad": "Gözlem",
+    "ikon": "eye",
+    "fields": [
+      {
+        "key": "gelisimDurumu",
+        "label": "Gelişim Durumu",
+        "type": "select",
+        "options": [
+          "Zayıf",
+          "Normal",
+          "İyi",
+          "Çok İyi"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "0114e634-b1e0-44f5-bec2-f8d0084de677",
+    "ad": "Yaprak Gübresi",
+    "ikon": "sprout",
+    "fields": [
+      {
+        "key": "urunAdi",
+        "label": "Ürün Adı",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "etkenIcerik",
+        "label": "Etken / İçerik",
+        "type": "text"
+      },
+      {
+        "key": "doz",
+        "label": "Doz",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "birim",
+        "label": "Birim",
+        "type": "text"
+      },
+      {
+        "key": "yontem",
+        "label": "Yöntem",
+        "type": "select",
+        "options": [
+          "Yapraktan",
+          "Kök Bölgesine",
+          "Damla Sulama ile"
+        ]
+      },
+      {
+        "key": "amac",
+        "label": "Amaç / Hedef",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": "e90368a7-a963-4bc5-9fb8-44b722625198",
+    "ad": "İlaçlama",
+    "ikon": "bug",
+    "fields": [
+      {
+        "key": "etkenMadde",
+        "label": "Etken Madde",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "ticariAd",
+        "label": "Ticari Ad",
+        "type": "text"
+      },
+      {
+        "key": "doz",
+        "label": "Doz",
+        "type": "text"
+      },
+      {
+        "key": "birim",
+        "label": "Birim",
+        "type": "text"
+      },
+      {
+        "key": "hedef",
+        "label": "Hedef (Ot / Zararlı / Hastalık)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "uygulamaDetayi",
+        "label": "Uygulama Detayı",
+        "type": "textarea"
+      },
+      {
+        "key": "recete",
+        "label": "Reçete (tank karışımı)",
+        "type": "textarea"
+      }
+    ]
+  }
+]

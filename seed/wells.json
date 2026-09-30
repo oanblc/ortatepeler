@@ -1,0 +1,26 @@
+[
+  {
+    "id": "w1",
+    "customerId": "c1",
+    "ad": "Kuzey Kuyusu",
+    "createdAt": "2026-09-04T10:05:00.000Z"
+  },
+  {
+    "id": "w2",
+    "customerId": "c1",
+    "ad": "Ana Kuyu",
+    "createdAt": "2026-09-04T10:06:00.000Z"
+  },
+  {
+    "id": "w3",
+    "customerId": "c2",
+    "ad": "Ana Kuyu",
+    "createdAt": "2026-09-05T10:05:00.000Z"
+  },
+  {
+    "id": "w4",
+    "customerId": "c3",
+    "ad": "Güney Kuyusu",
+    "createdAt": "2026-09-06T10:05:00.000Z"
+  }
+]

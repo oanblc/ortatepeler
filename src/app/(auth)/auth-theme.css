@@ -1,0 +1,111 @@
+/* Kimlik ekranları (giriş/kayıt/şifre) için tasarım kimliği. Bilinçli olarak
+   tek temalı: sağ form paneli her zaman beyaz/açık, sol marka paneli her
+   zaman koyu orman yeşili — sistem karanlık moduna göre değişmez (Ozan'ın
+   geri bildirimi: "sağ taraf beyazdı o şekilde olsun").
+   Onaylanan önizleme: https://claude.ai/code/artifact/d84cea98-67a0-41cc-ac51-6c9be3efe4af */
+
+.tarla-auth {
+  --auth-ink: #171e17;
+  --auth-ink-2: #525a4c;
+  --auth-muted: #848c76;
+  --auth-paper: #eef2e6;
+  --auth-surface: #ffffff;
+  --auth-line: #dbe0ce;
+  --auth-brand: #0e9488;
+  --auth-brand-ink: #ffffff;
+  --auth-brand-deep: #122016;
+  --auth-good: #2f9e46;
+  --auth-good-tint: #e3f4e6;
+  --auth-crit: #b3452b;
+  --auth-crit-tint: #f8e2da;
+
+  background: var(--auth-paper);
+  color: var(--auth-ink);
+  font-family: var(--font-sans-auth), system-ui, -apple-system, "Segoe UI", sans-serif;
+  min-height: 100%;
+}
+
+.tarla-auth h1,
+.tarla-auth h2 {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  margin: 0;
+}
+.tarla-auth :focus-visible { outline: 2px solid var(--auth-brand); outline-offset: 2px; }
+.tarla-auth .icon { width: 1em; height: 1em; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+.auth { min-height: 100dvh; display: grid; grid-template-columns: 1fr 1fr; }
+.auth-brand {
+  background: var(--auth-brand-deep); color: #d7ded0; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: space-between; padding: 44px;
+}
+.auth-brand .rows { position: absolute; inset: -70px; opacity: 0.5; animation: auth-rows-drift 16s ease-in-out infinite alternate; }
+.auth-brand .rows svg { width: 100%; height: 100%; }
+@keyframes auth-rows-drift {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-46px, 28px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-brand .rows { animation: none; }
+}
+/* Logo koyu zeminde çıplak durunca kirli görünüyor — antetteki gibi beyaz kart üzerine oturtulur. */
+.auth-brand .top { position: relative; align-self: flex-start; display: inline-flex; align-items: center; padding: 9px 16px; background: #fff; border-radius: 10px; text-decoration: none; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); }
+.top-logo { height: 26px; width: auto; display: block; }
+.auth-brand .mid { position: relative; max-width: 420px; }
+.auth-brand .mid h1 { color: #fff; font-size: 32px; font-weight: 600; line-height: 1.18; }
+.auth-brand .mid p { color: #a7b6a4; font-size: 14.5px; line-height: 1.6; margin: 14px 0 0; }
+.auth-brand .chips { position: relative; display: flex; flex-wrap: wrap; gap: 8px; }
+.auth-brand .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #cdd6c4; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 999px; padding: 6px 11px; }
+.auth-brand .chip .icon { width: 13px; height: 13px; color: #7fd9c7; }
+
+.auth-form-side { display: flex; align-items: center; justify-content: center; padding: 40px; }
+.auth-form { width: 100%; max-width: 380px; }
+.auth-form .eyebrow { font-size: 12px; color: var(--auth-muted); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; }
+.auth-form h2 { font-size: 22px; margin-top: 8px; }
+.auth-form .lede { font-size: 13.5px; color: var(--auth-ink-2); margin: 8px 0 26px; }
+
+.a-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.a-field label { font-size: 12.5px; font-weight: 600; color: var(--auth-ink-2); }
+.a-field .input-wrap { display: flex; align-items: center; gap: 8px; border: 1px solid var(--auth-line); border-radius: 6px; padding: 0 11px; background: var(--auth-surface); }
+.a-field .input-wrap:focus-within { border-color: var(--auth-brand); }
+.a-field .input-wrap .icon { width: 15px; height: 15px; color: var(--auth-muted); flex: none; }
+.a-field input { border: none; outline: none; background: transparent; padding: 10px 0; font-size: 13.5px; width: 100%; color: var(--auth-ink); font-family: inherit; }
+.a-field input:focus-visible { outline: none; }
+.a-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.a-check-row { display: flex; align-items: flex-start; gap: 9px; margin: 2px 0 20px; }
+.a-check-row input { margin-top: 2px; accent-color: var(--auth-brand); width: 15px; height: 15px; flex: none; }
+.a-check-row label { font-size: 12.5px; color: var(--auth-ink-2); line-height: 1.5; }
+
+.a-field-foot { display: flex; justify-content: space-between; align-items: center; margin: -6px 0 18px; font-size: 12px; }
+.a-field-foot .remember { display: flex; align-items: center; gap: 7px; color: var(--auth-ink-2); }
+.a-field-foot .remember input { accent-color: var(--auth-brand); width: 14px; height: 14px; }
+.a-field-foot a { color: var(--auth-brand); text-decoration: none; font-weight: 600; }
+
+.a-submit { width: 100%; background: var(--auth-brand); color: var(--auth-brand-ink); border: none; border-radius: 6px; padding: 11px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.a-submit:hover { filter: brightness(1.08); }
+.a-submit:disabled { opacity: 0.6; cursor: default; }
+.a-submit-ghost { width: 100%; background: var(--auth-surface); color: var(--auth-ink); border: 1px solid var(--auth-line); border-radius: 6px; padding: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+.a-submit-ghost:hover { border-color: var(--auth-muted); }
+
+.a-error { font-size: 12.5px; color: var(--auth-crit); background: var(--auth-crit-tint); border-radius: 6px; padding: 9px 11px; margin-bottom: 14px; }
+.a-success-banner { font-size: 12.5px; color: var(--auth-good); background: var(--auth-good-tint); border-radius: 6px; padding: 9px 11px; margin-bottom: 20px; }
+
+.auth-form .fineprint { font-size: 12.5px; color: var(--auth-muted); text-align: center; margin-top: 22px; }
+.auth-form .fineprint a { color: var(--auth-brand); text-decoration: none; font-weight: 600; }
+
+.a-back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--auth-ink-2); text-decoration: none; margin-bottom: 18px; }
+.a-back-link .icon { width: 14px; height: 14px; }
+.a-back-link:hover { color: var(--auth-ink); }
+
+.a-confirm .icon-badge { width: 44px; height: 44px; border-radius: 50%; background: var(--auth-good-tint); color: var(--auth-good); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.a-confirm .icon-badge .icon { width: 22px; height: 22px; }
+.a-confirm p { font-size: 13.5px; color: var(--auth-ink-2); line-height: 1.6; margin: 10px 0 4px; }
+.a-confirm .email-chip { display: inline-block; font-family: var(--font-mono-auth), monospace; font-size: 12.5px; background: var(--auth-surface); border: 1px solid var(--auth-line); border-radius: 6px; padding: 3px 8px; margin: 6px 0 20px; }
+
+@media (max-width: 900px) {
+  .auth { grid-template-columns: 1fr; }
+  .auth-brand { display: none; }
+  .a-field-row { grid-template-columns: 1fr; }
+}

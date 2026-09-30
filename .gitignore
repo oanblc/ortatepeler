@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# gerçek veri — seed/ içindeki başlangıç verisinden ayrı, commit edilmez
+/data/*.json
+
+# Ziyaret Kaydı sekmesinden kullanıcı yüklediği fotoğraflar — repoya girmemeli
+/public/uploads/

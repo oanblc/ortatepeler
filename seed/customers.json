@@ -1,0 +1,32 @@
+[
+  {
+    "id": "c1",
+    "ad": "Arıkoğlu Çiftlik",
+    "adres": "Sarıçam, Adana",
+    "ilgiliKisiler": [
+      { "ad": "Mehmet Arıkoğlu", "telefon": "0532 411 22 09" }
+    ],
+    "sorumluMuhendisId": "1",
+    "createdAt": "2026-09-04T10:00:00.000Z"
+  },
+  {
+    "id": "c2",
+    "ad": "Oral Yarbaşı Çiftlik",
+    "adres": "Yüreğir, Adana",
+    "ilgiliKisiler": [
+      { "ad": "Oral Yarbaşı", "email": "oral.yarbasi@ornek.com" }
+    ],
+    "sorumluMuhendisId": "1",
+    "createdAt": "2026-09-05T10:00:00.000Z"
+  },
+  {
+    "id": "c3",
+    "ad": "Remziye Ahmet Karabucak",
+    "adres": "Ceyhan, Adana",
+    "ilgiliKisiler": [
+      { "ad": "Remziye Karabucak", "telefon": "0533 208 47 61" }
+    ],
+    "sorumluMuhendisId": "1",
+    "createdAt": "2026-09-06T10:00:00.000Z"
+  }
+]
