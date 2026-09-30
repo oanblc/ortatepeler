@@ -15,8 +15,8 @@ import {
 // Değerlendirme Soruları + Hastalık/Zararlı Listesi (ikisi de sadece
 // yönetici). Yaprak Gübreleme Planı'nın şablonu (ürün/dönem yapısı) sabit ve
 // src/lib/yaprakGubrelemePlani.ts'de kodlu — Yaprak Analizi'nin referans
-// tablosunun aksine burada yönetilecek bir liste YOK. Kullanıcı yönetimi bu
-// redesign projesinin kapsamı dışında bırakıldı.
+// tablosunun aksine burada yönetilecek bir liste YOK. Kullanıcı yönetimi
+// ayrı bir sayfada: /kullanicilar (bkz. src/app/(app)/kullanicilar/).
 export default async function AyarlarPage() {
   const user = await requireUser();
   const [tipler, sorular, hastaliklar] = await Promise.all([

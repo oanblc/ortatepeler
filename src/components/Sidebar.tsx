@@ -38,6 +38,12 @@ export function Sidebar({ user }: { user: { ad: string; rol: "admin" | "muhendis
           );
         })}
         <div className="nav-group-label">Sistem</div>
+        {user.rol === "admin" && (
+          <Link href="/kullanicilar" aria-current={pathname.startsWith("/kullanicilar") ? "page" : undefined}>
+            <Icon name="users" />
+            Kullanıcılar
+          </Link>
+        )}
         <Link href="/ayarlar" aria-current={pathname.startsWith("/ayarlar") ? "page" : undefined}>
           <Icon name="settings" />
           Ayarlar

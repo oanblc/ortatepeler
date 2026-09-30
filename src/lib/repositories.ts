@@ -44,6 +44,7 @@ export const users = {
   create: (data: Omit<User, "id" | "createdAt">) =>
     insertOne<User>(COLLECTIONS.users, { ...data, id: newId(), createdAt: new Date().toISOString() }),
   update: (id: string, patch: Partial<User>) => updateOne<User>(COLLECTIONS.users, id, patch),
+  delete: (id: string) => deleteOne(COLLECTIONS.users, id),
 };
 
 export const passwordResets = {

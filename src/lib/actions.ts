@@ -35,6 +35,7 @@ import type {
   BeslenmeUrun,
   FertigasyonUrun,
   GelirGiderTur,
+  User,
 } from "@/types";
 import {
   SESSION_COOKIE,
@@ -1162,4 +1163,79 @@ export async function deleteGelirGiderKaydiAction(id: string, _formData: FormDat
   await requireUser();
   await gelirGiderKayitlari.remove(id);
   revalidatePath("/gelir-gider");
+}
+
+// Kullanıcı yönetimi — sadece yönetici. Sayfa seviyesindeki notFound() koruması
+// dışında burada da ayrıca rol kontrolü yapılıyor; Server Action'lar doğrudan
+// çağrılabildiği için sayfa koruması tek başına yeterli değil.
+export type UserFormState = { error: string } | null;
+
+export async function createUserAction(_prevState: UserFormState, formData: FormData): Promise<UserFormState> {
+  await requireAdmin();
+
+  const ad = String(formData.get("ad") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  const rol = String(formData.get("rol") ?? "muhendis") === "admin" ? "admin" : "muhendis";
+
+  if (!ad || !email || !password) return { error: "Ad, e-posta ve şifre zorunlu." };
+  if (password.length < 8) return { error: "Şifre en az 8 karakter olmalı." };
+
+  const existing = (await users.list()).find((u) => u.email.toLowerCase() === email);
+  if (existing) return { error: "Bu e-posta ile zaten bir kullanıcı var." };
+
+  const passwordHash = await hashPassword(password);
+  await users.create({ ad, email, passwordHash, rol });
+
+  revalidatePath("/kullanicilar");
+  return null;
+}
+
+export async function updateUserAction(id: string, _prevState: UserFormState, formData: FormData): Promise<UserFormState> {
+  await requireAdmin();
+
+  const ad = String(formData.get("ad") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const rol = String(formData.get("rol") ?? "muhendis") === "admin" ? "admin" : "muhendis";
+  const password = String(formData.get("password") ?? "");
+
+  if (!ad || !email) return { error: "Ad ve e-posta zorunlu." };
+  if (password && password.length < 8) return { error: "Yeni şifre en az 8 karakter olmalı." };
+
+  const all = await users.list();
+  const target = all.find((u) => u.id === id);
+  if (!target) return { error: "Kullanıcı bulunamadı." };
+
+  const emailTaken = all.some((u) => u.id !== id && u.email.toLowerCase() === email);
+  if (emailTaken) return { error: "Bu e-posta başka bir kullanıcıda kayıtlı." };
+
+  // Son yöneticiyi kazara mühendisliğe düşürüp herkesi kilitli bırakmayı engelle.
+  if (target.rol === "admin" && rol !== "admin") {
+    const digerYoneticiSayisi = all.filter((u) => u.rol === "admin" && u.id !== id).length;
+    if (digerYoneticiSayisi === 0) return { error: "Son yönetici hesabının rolü değiştirilemez." };
+  }
+
+  const patch: Partial<User> = { ad, email, rol };
+  if (password) patch.passwordHash = await hashPassword(password);
+  await users.update(id, patch);
+
+  revalidatePath("/kullanicilar");
+  return null;
+}
+
+export async function deleteUserAction(id: string, _formData: FormData) {
+  const me = await requireAdmin();
+  if (id === me.id) throw new Error("Kendi hesabınızı silemezsiniz.");
+
+  const all = await users.list();
+  const target = all.find((u) => u.id === id);
+  if (!target) return;
+
+  if (target.rol === "admin") {
+    const digerYoneticiSayisi = all.filter((u) => u.rol === "admin" && u.id !== id).length;
+    if (digerYoneticiSayisi === 0) throw new Error("Son yönetici hesabı silinemez.");
+  }
+
+  await users.delete(id);
+  revalidatePath("/kullanicilar");
 }

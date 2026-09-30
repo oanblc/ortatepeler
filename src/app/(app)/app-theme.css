@@ -207,6 +207,7 @@ table.data-table { width: 100%; border-collapse: collapse; min-width: 720px; }
 
 .banner { font-size: 12.5px; border-radius: var(--radius-s); padding: 10px 14px; }
 .banner.good { color: var(--good); background: var(--good-tint); }
+.banner.crit { color: var(--crit); background: var(--crit-tint); }
 
 .notif-pop { position: relative; }
 /* document.body'ye portal'landığı için .tarla-app'in dışında render olur — oradaki
