@@ -563,10 +563,7 @@ function sayfalariUret(
           eyebrow: "Günlük Saha Kaydı",
           baslik: veri.customerAdi,
           altBaslik: "Seçili tarih aralığındaki parsel bazlı saha kayıtları",
-          metaSatirlari: [
-            { k: "Toplam Parsel", v: String(veri.toplamParselSayisi) },
-            { k: "Kayıtlı Satır", v: String(veri.satirlar.length) },
-          ],
+          metaSatirlari: [],
           icerik: <GunlukSahaIcerik satirlar={veri.satirlar} />,
         },
       ];
