@@ -329,17 +329,28 @@ async function raporAntetliPdfBelgesiOlustur(sayfalar: RaporSayfaGirdisi[]): Pro
       );
       const body = govdeSatirlari.map((satir) => satir.filter((h): h is Hucre => h !== null).map((h) => h.metin));
 
+      // sabitSutunSayisi'li tablolar (ör. Yaprak Gübreleme Planı — 100'den fazla
+      // ürün/kolon) çok geniş; büyütülmüş okunabilirlik fontuyla dikey sayfada
+      // sütun başına neredeyse bir sayfa harcanıp yüzlerce sayfaya çıkıyordu.
+      // Bu tür tablolarda kompakt bir font/dolgu kullanılır, diğer (az kolonlu)
+      // tablolar büyük/okunaklı fontta kalır.
+      const genisTabloMu = !!sabitSutunSayisi;
       autoTable(doc, {
         head,
         body,
         startY: y + 3,
-        styles: { font: "NotoSans", fontSize: 9.5, cellPadding: 2.4, overflow: "linebreak" },
+        styles: {
+          font: "NotoSans",
+          fontSize: genisTabloMu ? 6.5 : 9.5,
+          cellPadding: genisTabloMu ? 1.3 : 2.4,
+          overflow: "linebreak",
+        },
         headStyles: {
           font: "NotoSans",
           fillColor: [255, 255, 255],
           textColor: [138, 147, 137],
           fontStyle: "bold",
-          fontSize: 8.5,
+          fontSize: genisTabloMu ? 6 : 8.5,
           lineWidth: { top: 0, left: 0, right: 0, bottom: 0.5 },
           lineColor: [28, 42, 30],
         },
