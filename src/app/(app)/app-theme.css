@@ -194,18 +194,23 @@ table.data-table { width: 100%; border-collapse: collapse; min-width: 720px; }
 .danger-zone .title .icon { width: 16px; height: 16px; }
 .danger-zone .desc { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; line-height: 1.5; max-width: 460px; }
 
-.confirm-pop { position: relative; }
+/* document.body'ye portal'landığı için .tarla-app'in dışında render olur — bkz.
+   .notif-card'daki aynı not. Her özellikte gerçek renk değerini yedek olarak
+   da veriyoruz, aksi halde custom property'ler tanımsız kalır. */
 .confirm-card {
-  position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; width: 240px;
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-m);
+  z-index: 300; width: 240px;
+  background: var(--surface, #ffffff); border: 1px solid var(--line, #dbe0ce); border-radius: var(--radius-m, 10px);
   box-shadow: 0 10px 30px rgba(0,0,0,0.14); padding: 14px;
 }
-/* Butonun altında yeterli boşluk yoksa (ör. tablonun son satırı) kart yukarı açılır. */
-.confirm-card-up { top: auto; bottom: calc(100% + 6px); }
-.confirm-card .msg { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; margin-bottom: 12px; }
-.confirm-card .msg strong { color: var(--ink); }
+.confirm-card .msg { font-size: 12.5px; color: var(--ink-2, #525a4c); line-height: 1.5; margin-bottom: 12px; }
+.confirm-card .msg strong { color: var(--ink, #171e17); }
 .confirm-card .row { display: flex; gap: 8px; }
-.confirm-card .row .btn { flex: 1; justify-content: center; padding: 7px 10px; font-size: 12.5px; }
+.confirm-card .row .btn {
+  flex: 1; justify-content: center; padding: 7px 10px; font-size: 12.5px;
+  background: var(--surface, #ffffff); border-color: var(--line, #dbe0ce); color: var(--ink, #171e17);
+}
+.confirm-card .row .btn-danger { border-color: var(--crit, #b3452b); color: var(--crit, #b3452b); }
+.confirm-card .row .btn-danger:hover { background: var(--crit-tint, #f8e2da); }
 
 .banner { font-size: 12.5px; border-radius: var(--radius-s); padding: 10px 14px; }
 .banner.good { color: var(--good); background: var(--good-tint); }
