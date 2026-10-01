@@ -119,6 +119,20 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
 
   const [buyukGorunum, setBuyukGorunum] = useState(false);
 
+  // Çoklu parsel seçiminin dropdown hali — CustomerDetailTabs.tsx'teki Ziyaret
+  // Kaydı sekmesinin parsel dropdown'uyla aynı kalıp (bkz. .dropdown/.dropdown-panel/
+  // .parsel-dropdown-secenek, parseller-theme.css).
+  const [parselDropdownAcik, setParselDropdownAcik] = useState(false);
+  const parselDropdownRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!parselDropdownAcik) return;
+    function disariTiklandi(e: MouseEvent) {
+      if (parselDropdownRef.current && !parselDropdownRef.current.contains(e.target as Node)) setParselDropdownAcik(false);
+    }
+    document.addEventListener("mousedown", disariTiklandi);
+    return () => document.removeEventListener("mousedown", disariTiklandi);
+  }, [parselDropdownAcik]);
+
   const [epostaAdresi, setEpostaAdresi] = useState("");
   const [epostaDurumu, setEpostaDurumu] = useState<RaporEpostaState | null>(null);
   const [epostaGonderiliyor, epostaTransitionBaslat] = useTransition();
@@ -214,10 +228,14 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
   // onChange'i), state güncellemesi efekt içinde değil kullanıcı etkileşiminde olur.
   function musteriDegistir(id: string) {
     setMusteriId(id);
-    setParselIds(new Set());
+    const musteri = musteriler.find((m) => m.id === id);
+    // Çoklu parsel seçimine izin veren türlerde (Haftalık Rapor, Günlük Saha
+    // Kaydı) varsayılan "tüm parseller" — kullanıcı isterse dropdown'dan
+    // tekil tekil çıkarabilir. Tek parsel zorunlu türlerde (Sulama Uyumu vb.)
+    // boş kalır, kullanıcı açıkça birini seçmek zorunda.
+    setParselIds(raporTuru.parselCokluSecim ? new Set(musteri?.parceller.map((p) => p.id) ?? []) : new Set());
     // Müşteri eklenirken girilen ilgili kişi(ler)in e-postası otomatik
     // doldurulur — kullanıcı gerekirse virgülle başka adres(ler) ekleyebilir.
-    const musteri = musteriler.find((m) => m.id === id);
     setEpostaAdresi(musteri?.ilgiliKisiEpostalari.join(", ") ?? "");
     setEpostaDurumu(null);
   }
@@ -226,7 +244,8 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
 
   function raporTuruSec(id: string) {
     setRaporTuruId(id);
-    setParselIds(new Set());
+    const yeniTur = raporTuruBul(id)!;
+    setParselIds(yeniTur.parselCokluSecim ? new Set(secilenMusteri?.parceller.map((p) => p.id) ?? []) : new Set());
     setSecilenDonemler(new Set());
     setSecilenUrunler(new Set());
   }
@@ -370,14 +389,50 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
 
           {(raporTuru.kapsam === "parsel" || raporTuru.parselCokluSecim) && (
             <div className="ro-field">
-              <label>{raporTuru.parselCokluSecim ? "Parsel(ler) (boş = tümü)" : "Parsel"}</label>
+              <label>{raporTuru.parselCokluSecim ? "Parsel(ler)" : "Parsel"}</label>
               {parselSecenekleri.length === 0 ? (
                 <div style={{ fontSize: 12.5, color: "var(--muted)", padding: "9px 2px" }}>Önce müşteri seçin.</div>
+              ) : raporTuru.parselCokluSecim ? (
+                <div className="dropdown" ref={parselDropdownRef}>
+                  <button
+                    type="button"
+                    className={`dropdown-btn${parselIds.size > 0 ? " dropdown-btn-aktif" : ""}`}
+                    onClick={() => setParselDropdownAcik((a) => !a)}
+                  >
+                    {parselIds.size === 0
+                      ? "Parsel seç"
+                      : parselIds.size === parselSecenekleri.length
+                        ? `Tüm parseller (${parselSecenekleri.length})`
+                        : parselIds.size === 1
+                          ? parselSecenekleri.find((p) => parselIds.has(p.id))?.ad
+                          : `${parselIds.size} parsel seçili`}
+                    <Icon name="chevron-down" className="icon" />
+                  </button>
+                  {parselDropdownAcik && (
+                    <div className="dropdown-panel">
+                      {parselSecenekleri.length > 1 && (
+                        <div className="link-row" style={{ padding: "2px 8px 6px" }}>
+                          <a onClick={() => setParselIds(new Set(parselSecenekleri.map((p) => p.id)))}>Tümünü Seç</a>
+                          <span className="sep">·</span>
+                          <a onClick={() => setParselIds(new Set())}>Tümünü Kaldır</a>
+                        </div>
+                      )}
+                      {parselSecenekleri.map((p) => (
+                        <div key={p.id} className="dropdown-secenek parsel-dropdown-secenek">
+                          <label>
+                            <input type="checkbox" checked={parselIds.has(p.id)} onChange={() => parselToggle(p.id)} />
+                            {p.ad}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="parsel-secim">
                   {parselSecenekleri.map((p) => (
                     <label key={p.id} className={parselIds.has(p.id) ? "secili" : ""}>
-                      <input type={raporTuru.parselCokluSecim ? "checkbox" : "radio"} checked={parselIds.has(p.id)} onChange={() => parselToggle(p.id)} />
+                      <input type="radio" checked={parselIds.has(p.id)} onChange={() => parselToggle(p.id)} />
                       {p.ad}
                     </label>
                   ))}
