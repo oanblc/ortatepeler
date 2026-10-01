@@ -27,7 +27,7 @@ export function DisaAktarButton({
   dosyaAdi: string;
   belgeBasligi: string;
   tablolariGetir: () => DisaAktarTablo[];
-  antetliPdfGetir?: () => { sayfalar: RaporSayfaGirdisi[]; olusturulmaZamani: string } | null;
+  antetliPdfGetir?: () => { sayfalar: RaporSayfaGirdisi[] } | null;
 }) {
   const [acik, setAcik] = useState(false);
   const [yukleniyor, setYukleniyor] = useState<"excel" | "pdf" | null>(null);
@@ -61,7 +61,7 @@ export function DisaAktarButton({
     try {
       const antetliGirdi = antetliPdfGetir?.();
       if (antetliGirdi) {
-        await raporlariAntetliPdfeAktar(antetliGirdi.sayfalar, dosyaAdi, antetliGirdi.olusturulmaZamani);
+        await raporlariAntetliPdfeAktar(antetliGirdi.sayfalar, dosyaAdi);
       } else {
         await tablolariPdfeAktar(gecerliTablolar(), dosyaAdi, belgeBasligi);
       }

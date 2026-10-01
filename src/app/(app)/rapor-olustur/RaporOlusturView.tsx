@@ -149,7 +149,7 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
         return;
       }
       const dosyaAdi = `${dosyaAdiTabani || "Rapor"}.pdf`;
-      const blob = await raporAntetliPdfBlobUret(toplananSayfalar, olusturulmaZamani || new Date().toISOString());
+      const blob = await raporAntetliPdfBlobUret(toplananSayfalar);
       const formData = new FormData();
       formData.set("to", epostaAdresi);
       formData.set("raporAdi", `${raporTuru.etiket} — ${secilenMusteri?.ad ?? "Ortatepeler"}`);
@@ -560,7 +560,7 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
             antetliPdfGetir={() => {
               const toplananSayfalar = raporSayfalariniTopla(onizlemeRef.current);
               if (toplananSayfalar.length === 0) return null;
-              return { sayfalar: toplananSayfalar, olusturulmaZamani: olusturulmaZamani || new Date().toISOString() };
+              return { sayfalar: toplananSayfalar };
             }}
           />
         </div>

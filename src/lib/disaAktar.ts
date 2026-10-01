@@ -187,13 +187,6 @@ function logoYukle(): Promise<string> {
 // addImage genişlik/yükseklik mm cinsinden istiyor, oran bozulmasın diye sabit.
 const LOGO_ORANI = 978 / 234;
 
-function pdfTarihSaat(iso: string): string {
-  const d = new Date(iso);
-  const tarih = d.toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" });
-  const saat = d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
-  return `${tarih} ${saat}`;
-}
-
 export interface RaporSayfaBolumu {
   baslik: string;
   tablo?: HTMLTableElement;
@@ -213,16 +206,13 @@ export interface RaporSayfaGirdisi {
 /**
  * Rapor Oluştur ekranının kurumsal antetli PDF'i — RaporAntetSayfasi.tsx'teki
  * ekran önizlemesinin PDF karşılığı. `didDrawPage` ile HER fiziksel sayfanın
- * üstüne logo/marka/iletişim/altın çizgi, altına sayfa no basılır (metin
+ * üstüne logo/marka/iletişim/altın çizgi, altına şirket adı basılır (metin
  * aranabilir kalır) — `sayfalar` dizisindeki her girdi bir "mantıksal" antetli
  * sayfa (ör. bir hafta), kendi başlık bloğunu bir kez yazar; bölümlerinin
  * tablosu taşarsa autoTable kendi iç sayfalamasını yapar, antet/altbilgi o ek
  * sayfalarda da otomatik tekrarlanır.
  */
-async function raporAntetliPdfBelgesiOlustur(
-  sayfalar: RaporSayfaGirdisi[],
-  olusturulmaZamani: string,
-): Promise<jsPDF> {
+async function raporAntetliPdfBelgesiOlustur(sayfalar: RaporSayfaGirdisi[]): Promise<jsPDF> {
   // Dikey (portrait) — okunurluk için yatay yerine; geniş tablolar (ör.
   // Yaprak Gübreleme Planı) autoTable'ın kendi yatay sayfa bölünmesiyle
   // (horizontalPageBreak) ek sayfalara taşar, bu zaten desteklenen bir akış.
@@ -231,7 +221,6 @@ async function raporAntetliPdfBelgesiOlustur(
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const ANTET_YUKSEKLIK = 26;
-  const zamanEtiketi = pdfTarihSaat(olusturulmaZamani);
 
   function antetVeAltbilgiCiz() {
     doc.setFillColor(18, 32, 22);
@@ -264,10 +253,7 @@ async function raporAntetliPdfBelgesiOlustur(
     doc.setFont("NotoSans", "normal");
     doc.setFontSize(8.5);
     doc.setTextColor(132, 140, 118);
-    doc.text("Ortatepeler Zirai Danışmanlık Ltd. Şti.", 8, pageHeight - 7);
-    doc.text(`Sayfa ${doc.getNumberOfPages()} — ${zamanEtiketi}'de oluşturuldu`, pageWidth - 8, pageHeight - 7, {
-      align: "right",
-    });
+    doc.text("Ortatepeler Zirai Danışmanlık Ltd. Şti.", pageWidth / 2, pageHeight - 7, { align: "center" });
     doc.setTextColor(0, 0, 0);
   }
 
@@ -373,12 +359,8 @@ async function raporAntetliPdfBelgesiOlustur(
   return doc;
 }
 
-export async function raporlariAntetliPdfeAktar(
-  sayfalar: RaporSayfaGirdisi[],
-  dosyaAdi: string,
-  olusturulmaZamani: string,
-) {
-  const doc = await raporAntetliPdfBelgesiOlustur(sayfalar, olusturulmaZamani);
+export async function raporlariAntetliPdfeAktar(sayfalar: RaporSayfaGirdisi[], dosyaAdi: string) {
+  const doc = await raporAntetliPdfBelgesiOlustur(sayfalar);
   doc.save(`${dosyaAdi}.pdf`);
 }
 
@@ -387,11 +369,8 @@ export async function raporlariAntetliPdfeAktar(
  * bir Blob olarak üretir (raporlariAntetliPdfeAktar'la birebir aynı çizim
  * kodu, bkz. raporAntetliPdfBelgesiOlustur).
  */
-export async function raporAntetliPdfBlobUret(
-  sayfalar: RaporSayfaGirdisi[],
-  olusturulmaZamani: string,
-): Promise<Blob> {
-  const doc = await raporAntetliPdfBelgesiOlustur(sayfalar, olusturulmaZamani);
+export async function raporAntetliPdfBlobUret(sayfalar: RaporSayfaGirdisi[]): Promise<Blob> {
+  const doc = await raporAntetliPdfBelgesiOlustur(sayfalar);
   return doc.output("blob");
 }
 
