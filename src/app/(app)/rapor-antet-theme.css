@@ -70,7 +70,15 @@
 }
 .ro-lightbox-kapat:hover { background: rgba(255,255,255,0.18); }
 .ro-lightbox-kapat .icon { width: 16px; height: 16px; transform: rotate(45deg); }
-.ro-lightbox-govde { flex: 1; width: 100%; overflow-y: auto; display: flex; justify-content: center; padding: 0 24px 40px; }
+/* align-items:flex-start ŞART — satır yönündeki bu flex kapsayıcıda varsayılan
+   "stretch" .rapor-sayfa-cerceve'yi kapsayıcının (scroll alanının) sabit
+   yüksekliğine zorluyor; içindeki her .rapor-sayfa kartı da varsayılan
+   flex-shrink:1 + overflow:hidden ile bu sabit yüksekliğe sıkışıp kırpılıyordu
+   (sayfa "Isı Toplamı / İklim" başlığından hemen sonra kesilip bir sonraki
+   haftanın kartı araya boşluk bırakmadan başlıyordu). flex-start, kartların
+   kendi doğal (içerik kadar) yüksekliğinde kalmasını sağlar; taşan kısım
+   overflow-y:auto ile kaydırılır. */
+.ro-lightbox-govde { flex: 1; width: 100%; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; padding: 0 24px 40px; }
 .ro-lightbox-govde .rapor-sayfa-cerceve { max-width: 860px; width: 100%; }
 
 /* --- Antetli sayfa --- */
