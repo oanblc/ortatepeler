@@ -190,7 +190,7 @@
       },
       {
         "key": "recete",
-        "label": "Reçete (tank karışımı)",
+        "label": "Reçete",
         "type": "textarea"
       }
     ]

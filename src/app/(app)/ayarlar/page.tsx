@@ -9,6 +9,7 @@ import {
   deleteDegerlendirmeSorusuAction,
   createHastalikTanimiAction,
   deleteHastalikTanimiAction,
+  geciciReceteEtiketiDuzeltAction,
 } from "@/lib/actions";
 
 // Ayarlar sayfası — Kayıt Tipleri (herkes görür, salt okunur) + Genel
@@ -50,6 +51,13 @@ export default async function AyarlarPage() {
               </div>
             ))}
           </div>
+          {user.rol === "admin" && (
+            <form action={geciciReceteEtiketiDuzeltAction} style={{ marginTop: 14 }}>
+              <button type="submit" className="btn">
+                Reçete etiketini düzelt (geçici)
+              </button>
+            </form>
+          )}
         </div>
 
         {user.rol === "admin" && (

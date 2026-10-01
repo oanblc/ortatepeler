@@ -36,6 +36,7 @@ import type {
   FertigasyonUrun,
   GelirGiderTur,
   User,
+  RecordTypeDef,
 } from "@/types";
 import {
   SESSION_COOKIE,
@@ -1019,6 +1020,21 @@ async function requireAdmin() {
     throw new Error("Bu işlem için yönetici yetkisi gerekiyor.");
   }
   return user;
+}
+
+// GEÇİCİ — "Reçete (tank karışımı)" alan etiketindeki ekin kaldırılması için
+// tek seferlik veri düzeltmesi (zaten kayıtlı data/record-types.json'u
+// değiştirir, seed dosyası ayrıca güncellendi). Uygulandıktan sonra bu
+// fonksiyon ve onu çağıran geçici buton kaldırılacak.
+export async function geciciReceteEtiketiDuzeltAction(_formData: FormData) {
+  await requireAdmin();
+  const { updateOne } = await import("./db");
+  const tipler = await recordTypes.list();
+  const ilacTuru = tipler.find((t) => t.ad === "İlaçlama");
+  if (!ilacTuru) return;
+  const yeniFields = ilacTuru.fields.map((f) => (f.key === "recete" ? { ...f, label: "Reçete" } : f));
+  await updateOne<RecordTypeDef>("record-types", ilacTuru.id, { fields: yeniFields });
+  revalidatePath("/ayarlar");
 }
 
 export async function createDegerlendirmeSorusuAction(formData: FormData) {
