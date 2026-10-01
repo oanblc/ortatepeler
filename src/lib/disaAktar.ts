@@ -41,8 +41,8 @@ function fontlariYukle(): Promise<{ normal: string; kalin: string }> {
   return fontYuklemePromise;
 }
 
-async function turkceFontluPdfOlustur(): Promise<jsPDF> {
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+async function turkceFontluPdfOlustur(orientation: "landscape" | "portrait" = "landscape"): Promise<jsPDF> {
+  const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
   const { normal, kalin } = await fontlariYukle();
   doc.addFileToVFS("NotoSans-Regular.ttf", normal);
   doc.addFont("NotoSans-Regular.ttf", "NotoSans", "normal");
@@ -223,11 +223,14 @@ async function raporAntetliPdfBelgesiOlustur(
   sayfalar: RaporSayfaGirdisi[],
   olusturulmaZamani: string,
 ): Promise<jsPDF> {
-  const doc = await turkceFontluPdfOlustur();
+  // Dikey (portrait) — okunurluk için yatay yerine; geniş tablolar (ör.
+  // Yaprak Gübreleme Planı) autoTable'ın kendi yatay sayfa bölünmesiyle
+  // (horizontalPageBreak) ek sayfalara taşar, bu zaten desteklenen bir akış.
+  const doc = await turkceFontluPdfOlustur("portrait");
   const [logoBase64] = await Promise.all([logoYukle()]);
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
-  const ANTET_YUKSEKLIK = 24;
+  const ANTET_YUKSEKLIK = 26;
   const zamanEtiketi = pdfTarihSaat(olusturulmaZamani);
 
   function antetVeAltbilgiCiz() {
@@ -236,7 +239,7 @@ async function raporAntetliPdfBelgesiOlustur(
 
     // Logo, antedin koyu zemini üzerine oturan gölgeli beyaz bir kart içinde
     // (onaylanan "Koyu Şerit + Beyaz Logo Kartı" tasarımı).
-    const logoYukseklik = 12;
+    const logoYukseklik = 13;
     const logoGenislik = logoYukseklik * LOGO_ORANI;
     const kartDolguX = 4;
     const kartDolguY = 3;
@@ -247,19 +250,19 @@ async function raporAntetliPdfBelgesiOlustur(
     doc.roundedRect(8, kartY, kartGenislik, kartYukseklik, 1.4, 1.4, "F");
     doc.addImage(logoBase64, "PNG", 8 + kartDolguX, kartY + kartDolguY, logoGenislik, logoYukseklik);
     doc.setFont("NotoSans", "bold");
-    doc.setFontSize(9);
+    doc.setFontSize(10.5);
     doc.setTextColor(255, 255, 255);
-    doc.text("bilgi@ortatepeler.com", pageWidth - 8, 10, { align: "right" });
+    doc.text("bilgi@ortatepeler.com", pageWidth - 8, 11, { align: "right" });
     doc.setFont("NotoSans", "normal");
-    doc.setFontSize(8);
+    doc.setFontSize(9.5);
     doc.setTextColor(199, 210, 200);
-    doc.text("0505 428 65 98", pageWidth - 8, 16, { align: "right" });
+    doc.text("0505 428 65 98", pageWidth - 8, 17.5, { align: "right" });
 
     doc.setFillColor(201, 154, 63);
     doc.rect(0, ANTET_YUKSEKLIK, pageWidth, 1.2, "F");
 
     doc.setFont("NotoSans", "normal");
-    doc.setFontSize(7);
+    doc.setFontSize(8.5);
     doc.setTextColor(132, 140, 118);
     doc.text("Ortatepeler Zirai Danışmanlık Ltd. Şti.", 8, pageHeight - 7);
     doc.text(`Sayfa ${doc.getNumberOfPages()} — ${zamanEtiketi}'de oluşturuldu`, pageWidth - 8, pageHeight - 7, {
@@ -271,54 +274,54 @@ async function raporAntetliPdfBelgesiOlustur(
   sayfalar.forEach((sayfa, sayfaIndex) => {
     if (sayfaIndex > 0) doc.addPage();
 
-    let y = ANTET_YUKSEKLIK + 14;
+    let y = ANTET_YUKSEKLIK + 16;
     doc.setFont("NotoSans", "bold");
-    doc.setFontSize(7.5);
+    doc.setFontSize(9.5);
     const eyebrowMetni = sayfa.eyebrow.toLocaleUpperCase("tr");
-    const eyebrowGenislik = doc.getTextWidth(eyebrowMetni) + 6;
+    const eyebrowGenislik = doc.getTextWidth(eyebrowMetni) + 7;
     doc.setFillColor(31, 74, 44);
-    doc.roundedRect(8, y - 3.6, eyebrowGenislik, 5.2, 2.6, 2.6, "F");
+    doc.roundedRect(8, y - 4.2, eyebrowGenislik, 6.2, 3, 3, "F");
     doc.setTextColor(255, 255, 255);
-    doc.text(eyebrowMetni, 8 + 3, y);
+    doc.text(eyebrowMetni, 8 + 3.5, y);
     doc.setTextColor(0, 0, 0);
-    y += 8;
-    doc.setFontSize(15);
+    y += 9.5;
+    doc.setFontSize(19);
     doc.setTextColor(23, 30, 23);
     doc.text(sayfa.baslik, 8, y);
-    y += 6;
+    y += 7.5;
     doc.setFont("NotoSans", "normal");
-    doc.setFontSize(9);
+    doc.setFontSize(11);
     doc.setTextColor(82, 90, 76);
     doc.text(sayfa.altBaslik, 8, y);
-    y += 6;
+    y += 7;
 
     if (sayfa.metaSatirlari.length > 0) {
       const metaMetni = sayfa.metaSatirlari.map((m) => `${m.k}: ${m.v}`).join("     ");
-      doc.setFontSize(8);
+      doc.setFontSize(9.5);
       doc.text(metaMetni, 8, y);
-      y += 8;
+      y += 9;
     } else {
       y += 2;
     }
 
     sayfa.bolumler.forEach(({ baslik, tablo, bosMesaj, sabitSutunSayisi }) => {
       doc.setFont("NotoSans", "bold");
-      doc.setFontSize(7.5);
+      doc.setFontSize(9.5);
       doc.setTextColor(18, 32, 22);
-      doc.text(baslik.toLocaleUpperCase("tr"), 8, y + 3.2);
+      doc.text(baslik.toLocaleUpperCase("tr"), 8, y + 4);
       doc.setDrawColor(18, 32, 22);
       doc.setLineWidth(0.5);
-      doc.line(8, y + 5, pageWidth - 8, y + 5);
+      doc.line(8, y + 6, pageWidth - 8, y + 6);
       doc.setTextColor(0, 0, 0);
-      y += 5;
+      y += 6;
 
       if (!tablo) {
         doc.setFont("NotoSans", "normal");
-        doc.setFontSize(8);
+        doc.setFontSize(9.5);
         doc.setTextColor(132, 140, 118);
-        doc.text(bosMesaj ?? "Veri yok.", 8, y + 5);
+        doc.text(bosMesaj ?? "Veri yok.", 8, y + 6);
         doc.setTextColor(0, 0, 0);
-        y += 12;
+        y += 14;
         return;
       }
 
@@ -336,13 +339,14 @@ async function raporAntetliPdfBelgesiOlustur(
         head,
         body,
         startY: y + 3,
-        styles: { font: "NotoSans", fontSize: 6, cellPadding: 1.2, overflow: "linebreak" },
+        styles: { font: "NotoSans", fontSize: 9.5, cellPadding: 2.4, overflow: "linebreak" },
         headStyles: {
           font: "NotoSans",
           fillColor: [255, 255, 255],
           textColor: [138, 147, 137],
           fontStyle: "bold",
-          lineWidth: { top: 0, left: 0, right: 0, bottom: 0.4 },
+          fontSize: 8.5,
+          lineWidth: { top: 0, left: 0, right: 0, bottom: 0.5 },
           lineColor: [28, 42, 30],
         },
         horizontalPageBreak: true,
@@ -351,7 +355,7 @@ async function raporAntetliPdfBelgesiOlustur(
         didDrawPage: antetVeAltbilgiCiz,
       });
 
-      y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
+      y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 9;
     });
 
     // Bölüm hiç yoksa (ör. veri bulunamadı) antet/altbilgi yine de basılsın.
