@@ -219,11 +219,10 @@ export interface RaporSayfaGirdisi {
  * tablosu taşarsa autoTable kendi iç sayfalamasını yapar, antet/altbilgi o ek
  * sayfalarda da otomatik tekrarlanır.
  */
-export async function raporlariAntetliPdfeAktar(
+async function raporAntetliPdfBelgesiOlustur(
   sayfalar: RaporSayfaGirdisi[],
-  dosyaAdi: string,
   olusturulmaZamani: string,
-) {
+): Promise<jsPDF> {
   const doc = await turkceFontluPdfOlustur();
   const [logoBase64] = await Promise.all([logoYukle()]);
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -359,7 +358,29 @@ export async function raporlariAntetliPdfeAktar(
     if (sayfa.bolumler.length === 0) antetVeAltbilgiCiz();
   });
 
+  return doc;
+}
+
+export async function raporlariAntetliPdfeAktar(
+  sayfalar: RaporSayfaGirdisi[],
+  dosyaAdi: string,
+  olusturulmaZamani: string,
+) {
+  const doc = await raporAntetliPdfBelgesiOlustur(sayfalar, olusturulmaZamani);
   doc.save(`${dosyaAdi}.pdf`);
+}
+
+/**
+ * E-posta ile gönderme akışı için — aynı antetli PDF'i diske indirmek yerine
+ * bir Blob olarak üretir (raporlariAntetliPdfeAktar'la birebir aynı çizim
+ * kodu, bkz. raporAntetliPdfBelgesiOlustur).
+ */
+export async function raporAntetliPdfBlobUret(
+  sayfalar: RaporSayfaGirdisi[],
+  olusturulmaZamani: string,
+): Promise<Blob> {
+  const doc = await raporAntetliPdfBelgesiOlustur(sayfalar, olusturulmaZamani);
+  return doc.output("blob");
 }
 
 /**

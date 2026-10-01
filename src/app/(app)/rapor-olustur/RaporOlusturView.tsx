@@ -6,7 +6,8 @@ import { DisaAktarButton } from "@/components/DisaAktarButton";
 import { RaporAntetSayfasi } from "@/components/RaporAntetSayfasi";
 import { RAPOR_TURLERI, raporTuruBul, type KapsamModu } from "@/lib/raporTurleri";
 import { raporVerisiGetir, type RaporVerisiParams, type RaporGorunumVerisi } from "./raporVerisiAction";
-import { raporSayfalariniTopla } from "@/lib/disaAktar";
+import { raporSayfalariniTopla, raporAntetliPdfBlobUret } from "@/lib/disaAktar";
+import { raporEpostaylaGonderAction, type RaporEpostaState } from "./raporEpostaAction";
 import { formatKisaTarih, formatUzunTarih } from "@/lib/toprakMock";
 import { kayitOzeti, tipBadgeSinifi, formatKayitTarihi, oncelikSinifi } from "@/lib/kayitlar";
 import { ZIYARET_DURUM_SECENEKLERI } from "@/lib/tarim";
@@ -115,6 +116,33 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
   const [suruklenenId, setSuruklenenId] = useState<string | null>(null);
 
   const [buyukGorunum, setBuyukGorunum] = useState(false);
+
+  const [epostaAdresi, setEpostaAdresi] = useState("");
+  const [epostaDurumu, setEpostaDurumu] = useState<RaporEpostaState | null>(null);
+  const [epostaGonderiliyor, epostaTransitionBaslat] = useTransition();
+
+  // "İndir"deki antetliPdfGetir ile AYNI DOM okuması (raporSayfalariniTopla) —
+  // indirilen PDF ile e-postayla gidenin birebir aynı üretimden gelmesi için
+  // ayrı bir veri yolu yok, sadece çıktı dosya yerine e-postaya gidiyor.
+  function epostaylaGonder() {
+    setEpostaDurumu(null);
+    epostaTransitionBaslat(async () => {
+      const toplananSayfalar = raporSayfalariniTopla(onizlemeRef.current);
+      if (toplananSayfalar.length === 0) {
+        setEpostaDurumu({ basarili: false, mesaj: "Önce bir önizleme oluşturun." });
+        return;
+      }
+      const dosyaAdi = `${dosyaAdiTabani || "Rapor"}.pdf`;
+      const blob = await raporAntetliPdfBlobUret(toplananSayfalar, olusturulmaZamani || new Date().toISOString());
+      const formData = new FormData();
+      formData.set("to", epostaAdresi);
+      formData.set("raporAdi", `${raporTuru.etiket} — ${secilenMusteri?.ad ?? "Ortatepeler"}`);
+      formData.set("dosyaAdi", dosyaAdi);
+      formData.set("pdf", blob, dosyaAdi);
+      const sonuc = await raporEpostaylaGonderAction(null, formData);
+      setEpostaDurumu(sonuc);
+    });
+  }
 
   useEffect(() => {
     if (!buyukGorunum) return;
@@ -412,6 +440,28 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
         </div>
 
         <div className="ro-actions">
+          <div className="ro-eposta-grup">
+            <div className="ro-eposta-satir">
+              <input
+                type="email"
+                placeholder="ornek@sirket.com"
+                value={epostaAdresi}
+                onChange={(e) => setEpostaAdresi(e.target.value)}
+                disabled={epostaGonderiliyor}
+              />
+              <button
+                type="button"
+                className="btn"
+                onClick={epostaylaGonder}
+                disabled={epostaGonderiliyor || sayfalar.length === 0 || !epostaAdresi}
+              >
+                {epostaGonderiliyor ? "Gönderiliyor…" : "E-posta ile Gönder"}
+              </button>
+            </div>
+            {epostaDurumu && (
+              <div className={`ro-eposta-durum${epostaDurumu.basarili ? " basarili" : " hata"}`}>{epostaDurumu.mesaj}</div>
+            )}
+          </div>
           <DisaAktarButton
             dosyaAdi={dosyaAdiTabani || "Rapor"}
             belgeBasligi={`${secilenMusteri?.ad ?? "Ortatepeler"} — ${raporTuru.etiket}`}
