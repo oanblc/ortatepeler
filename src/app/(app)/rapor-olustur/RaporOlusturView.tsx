@@ -834,7 +834,7 @@ function HaftalikRaporIcerik({ veri }: { veri: import("@/lib/haftalikRapor").Haf
       </div>
 
       <div className="govde-bolum">
-        <div className="govde-bolum-baslik">Bu Hafta ↔ Geçen Hafta</div>
+        <div className="govde-bolum-baslik">Bu Hafta – Geçen Hafta</div>
         <table className="rapor-tablo">
           <thead>
             <tr>
@@ -1293,7 +1293,7 @@ function DegerlendirmeIcerik({
             return (
               <tr key={soru.id}>
                 <td>{soru.soru}</td>
-                <td className="num">{cevap ? "★".repeat(cevap.puan) + "☆".repeat(5 - cevap.puan) : "—"}</td>
+                <td className="num">{cevap ? `${cevap.puan} / 5` : "—"}</td>
                 <td>{cevap?.not || "—"}</td>
               </tr>
             );

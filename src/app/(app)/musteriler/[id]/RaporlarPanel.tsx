@@ -58,8 +58,8 @@ function trendSinifi(bu: number, gecen: number): "trend-up" | "trend-down" | "tr
 }
 
 function trendOku(bu: number, gecen: number): string {
-  if (bu > gecen) return "▲";
-  if (bu < gecen) return "▼";
+  if (bu > gecen) return "Artış";
+  if (bu < gecen) return "Azalış";
   return "—";
 }
 
@@ -830,7 +830,7 @@ const TREND_SATIRLARI: { key: keyof HaftaOzetiSatiri; label: string; birim: stri
 function DegerlendirmeBolumu({ veri, customerAdi }: { veri: ReturnType<typeof haftalikRaporVerisiHazirla>; customerAdi: string }) {
   return (
     <div className="hr-section">
-      <div className="hr-section-head degerlendirme">Bu Hafta ↔ Geçen Hafta</div>
+      <div className="hr-section-head degerlendirme">Bu Hafta – Geçen Hafta</div>
       <div className="table-scroll">
         <table className="trend-table hr-table">
           <thead>
