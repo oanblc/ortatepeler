@@ -4,6 +4,8 @@ import { useRef, useState, useEffect } from "react";
 import { Icon } from "./IconSprite";
 import { useNotifications } from "./NotificationsProvider";
 
+const KART_YUKSEKLIK_TAHMINI = 160;
+
 export function ConfirmDeleteButton({
   action,
   message,
@@ -25,6 +27,7 @@ export function ConfirmDeleteButton({
   basariliMesaj?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [yon, setYon] = useState<"asagi" | "yukari">("asagi");
   const ref = useRef<HTMLDivElement>(null);
   const { addNotification } = useNotifications();
 
@@ -36,19 +39,26 @@ export function ConfirmDeleteButton({
     return () => document.removeEventListener("click", onClick);
   }, []);
 
+  function ac() {
+    const rect = ref.current?.getBoundingClientRect();
+    const altBosluk = rect ? window.innerHeight - rect.bottom : Infinity;
+    setYon(altBosluk < KART_YUKSEKLIK_TAHMINI ? "yukari" : "asagi");
+    setOpen((v) => !v);
+  }
+
   return (
     <div className="confirm-pop" ref={ref}>
       <button
         type="button"
         className={label ? "btn btn-danger" : "icon-btn danger"}
         title="Sil"
-        onClick={() => setOpen((v) => !v)}
+        onClick={ac}
       >
         <Icon name="trash" />
         {label}
       </button>
       {open && (
-        <div className="confirm-card">
+        <div className={`confirm-card${yon === "yukari" ? " confirm-card-up" : ""}`}>
           <div className="msg">{message}</div>
           <form
             action={action}
