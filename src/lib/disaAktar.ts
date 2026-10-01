@@ -274,31 +274,39 @@ async function raporAntetliPdfBelgesiOlustur(
   sayfalar.forEach((sayfa, sayfaIndex) => {
     if (sayfaIndex > 0) doc.addPage();
 
-    let y = ANTET_YUKSEKLIK + 16;
+    let y = ANTET_YUKSEKLIK + 20;
+    doc.setFont("NotoSans", "bold");
+    doc.setFontSize(19);
+    doc.setTextColor(23, 30, 23);
+    doc.text(sayfa.baslik, 8, y);
+
+    // Rapor türü etiketi artık başlıkla AYNI satırda, sağa hizalı (çiftlik
+    // adıyla dikey hizalanacak şekilde) — önceden başlığın üstünde ayrı bir
+    // satırdı.
     doc.setFont("NotoSans", "bold");
     doc.setFontSize(9.5);
     const eyebrowMetni = sayfa.eyebrow.toLocaleUpperCase("tr");
     const eyebrowGenislik = doc.getTextWidth(eyebrowMetni) + 7;
     doc.setFillColor(31, 74, 44);
-    doc.roundedRect(8, y - 4.2, eyebrowGenislik, 6.2, 3, 3, "F");
+    doc.roundedRect(pageWidth - 8 - eyebrowGenislik, y - 4.6, eyebrowGenislik, 6.2, 3, 3, "F");
     doc.setTextColor(255, 255, 255);
-    doc.text(eyebrowMetni, 8 + 3.5, y);
+    doc.text(eyebrowMetni, pageWidth - 8 - eyebrowGenislik + 3.5, y - 0.2);
     doc.setTextColor(0, 0, 0);
-    y += 9.5;
-    doc.setFontSize(19);
-    doc.setTextColor(23, 30, 23);
-    doc.text(sayfa.baslik, 8, y);
-    y += 7.5;
+
+    y += 8;
     doc.setFont("NotoSans", "normal");
     doc.setFontSize(11);
-    doc.setTextColor(82, 90, 76);
+    // Koyulaştırıldı (önceki #525a4c okunurluğu zayıftı).
+    doc.setTextColor(40, 46, 36);
     doc.text(sayfa.altBaslik, 8, y);
     y += 7;
 
     if (sayfa.metaSatirlari.length > 0) {
       const metaMetni = sayfa.metaSatirlari.map((m) => `${m.k}: ${m.v}`).join("     ");
       doc.setFontSize(9.5);
+      doc.setTextColor(40, 46, 36);
       doc.text(metaMetni, 8, y);
+      doc.setTextColor(0, 0, 0);
       y += 9;
     } else {
       y += 2;
