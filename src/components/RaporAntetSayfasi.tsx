@@ -62,9 +62,9 @@ export const RaporAntetSayfasi = forwardRef<HTMLDivElement, RaporAntetSayfasiPro
         </div>
         <div className="antet-iletisim">
           <div>
-            <strong>Efe Ortatepe</strong>
+            <strong>bilgi@ortatepeler.com</strong>
           </div>
-          <div>0506 530 30 96</div>
+          <div>0505 428 65 98</div>
         </div>
       </div>
       <div className="altin-cizgi" />

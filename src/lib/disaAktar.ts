@@ -244,7 +244,7 @@ export async function raporlariAntetliPdfeAktar(
 
     // Logo, antedin koyu zemini üzerine oturan gölgeli beyaz bir kart içinde
     // (onaylanan "Koyu Şerit + Beyaz Logo Kartı" tasarımı).
-    const logoYukseklik = 9;
+    const logoYukseklik = 12;
     const logoGenislik = logoYukseklik * LOGO_ORANI;
     const kartDolguX = 4;
     const kartDolguY = 3;
@@ -257,11 +257,11 @@ export async function raporlariAntetliPdfeAktar(
     doc.setFont("NotoSans", "bold");
     doc.setFontSize(9);
     doc.setTextColor(255, 255, 255);
-    doc.text("Efe Ortatepe", pageWidth - 8, 10, { align: "right" });
+    doc.text("bilgi@ortatepeler.com", pageWidth - 8, 10, { align: "right" });
     doc.setFont("NotoSans", "normal");
     doc.setFontSize(8);
     doc.setTextColor(199, 210, 200);
-    doc.text("0506 530 30 96", pageWidth - 8, 16, { align: "right" });
+    doc.text("0505 428 65 98", pageWidth - 8, 16, { align: "right" });
 
     doc.setFillColor(201, 154, 63);
     doc.rect(0, ANTET_YUKSEKLIK, pageWidth, 1.2, "F");

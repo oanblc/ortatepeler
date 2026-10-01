@@ -89,7 +89,7 @@
    https://claude.ai/code/artifact/f7ea68ff-d6b2-4a89-bd4f-be7e46c4314b (seçenek 2) */
 .antet { background: var(--brand-deep); padding: 26px 44px; display: flex; align-items: center; justify-content: space-between; gap: 20px; position: relative; }
 .antet-marka { display: flex; align-items: center; background: #fff; border-radius: 10px; padding: 9px 18px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18); }
-.antet-marka img { height: 34px; width: auto; flex: none; }
+.antet-marka img { height: 44px; width: auto; flex: none; }
 .antet-iletisim { text-align: right; font-size: 12px; color: #cfe0d3; line-height: 1.65; }
 .antet-iletisim strong { color: #fff; font-weight: 700; font-size: 13.5px; }
 .altin-cizgi { height: 4px; background: var(--gold); }
