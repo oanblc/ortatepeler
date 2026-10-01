@@ -269,6 +269,16 @@ export function CustomerDetailTabs({
   const [ziyaretFotograflar, setZiyaretFotograflar] = useState<File[]>([]);
   const [ziyaretKaydediliyor, setZiyaretKaydediliyor] = useState(false);
   const ziyaretFotoInputRef = useRef<HTMLInputElement>(null);
+  // Kaydet'e basınca sayfa ortasında kısa süreli beliren onay — Toast (sağ
+  // alt, kalıcı bildirim merkezine de eklenen addNotification) yetersiz
+  // bulunduğu için ayrı, daha göze çarpan bir geri bildirim.
+  const [kaydedildiPopup, setKaydedildiPopup] = useState(false);
+  const ziyaretFormRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!kaydedildiPopup) return;
+    const zamanlayici = setTimeout(() => setKaydedildiPopup(false), 2200);
+    return () => clearTimeout(zamanlayici);
+  }, [kaydedildiPopup]);
 
   // Parsel(ler) seçimi dropdown olarak açılır/kapanır — çok parselli
   // müşterilerde uzun bir checkbox ızgarası formu gereksiz uzatıyordu.
@@ -289,6 +299,9 @@ export function CustomerDetailTabs({
   // Kayıt Ekle'den girilenler dahil — Ziyaret Kaydı formunun yazdıklarıyla
   // aynı koleksiyon).
   const [ziyaretListeArama, setZiyaretListeArama] = useState("");
+  // Saha Kaydı listesinde "Görüntüle" ile açılan tek satırın id'si — aynı anda
+  // en fazla bir kayıt genişletilmiş olabilir.
+  const [genisletilenKayitId, setGenisletilenKayitId] = useState<string | null>(null);
   const [ziyaretListeTarihFiltre, setZiyaretListeTarihFiltre] = useState<"hepsi" | "7" | "30" | "90">("30");
   const parcelAdMap = useMemo(() => new Map(parcels.map((p) => [p.id, p.ad])), [parcels]);
   const recordTypeMap = useMemo(() => new Map(recordTypes.map((t) => [t.id, t])), [recordTypes]);
@@ -343,6 +356,28 @@ export function CustomerDetailTabs({
     setZiyaretDurum(anaKayit.durum ?? "");
     setZiyaretOncelik(anaKayit.oncelikPuani ?? null);
     setZiyaretParselIds(new Set([parcelId]));
+  }
+
+  // Saha Kaydı listesindeki "Düzenle" kalemiyle TEK bir kaydı doğrudan forma
+  // doldurur — ziyaretKayitlariniDoldur'dan farkı, günü/parseli elle eşleştirmek
+  // yerine tıklanan kaydın kendi tarih/parsel bilgisini kullanması. Form hâlâ
+  // sadece createZiyaretKaydiAction'ın upsert ettiği alanları (not, reçete
+  // [sadece İlaçlama], fenolojik dönem, durum, öncelik) destekliyor — Gübreleme/
+  // Sulama/Hastalık gibi diğer tiplerin kendine özgü alanları bu sade formda
+  // yok, o kayıtlar için Kaydet'e basmak o tipin verisini DEĞİL, aynı gün için
+  // bir Gözlem/İlaçlama kaydı oluşturur/günceller (createZiyaretKaydiAction'daki
+  // mevcut davranış).
+  function kayitDuzenlemeyeAc(kayit: FieldRecord) {
+    setZiyaretTarih(kayit.tarih);
+    setZiyaretParselIds(new Set([kayit.parcelId]));
+    setZiyaretRecete(kayit.recordTypeId === ilacTuru?.id ? ((kayit.values?.recete as string) ?? "") : "");
+    setZiyaretAciklama(kayit.not ?? "");
+    setZiyaretFenolojikDonem(kayit.fenolojikDonem ?? "");
+    setZiyaretDurum(kayit.durum ?? "");
+    setZiyaretOncelik(kayit.oncelikPuani ?? null);
+    setTab("ziyaret");
+    setGenisletilenKayitId(null);
+    requestAnimationFrame(() => ziyaretFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }
 
   function ziyaretParselToggle(parcel: Parcel, secildi: boolean) {
@@ -414,6 +449,7 @@ export function CustomerDetailTabs({
 
       await createZiyaretKaydiAction(customer.id, fd);
       addNotification("Ziyaret kaydı eklendi.");
+      setKaydedildiPopup(true);
       ziyaretFormunuTemizle();
       router.refresh();
     } finally {
@@ -515,6 +551,14 @@ export function CustomerDetailTabs({
   return (
     <>
       {banner && <Toast message={banner} />}
+      {kaydedildiPopup && (
+        <div className="zk-onay-overlay" role="status" aria-live="polite">
+          <div className="zk-onay-kart">
+            <Icon name="check" className="icon" />
+            <span>Ziyaret bilgisi kaydedildi.</span>
+          </div>
+        </div>
+      )}
 
       <div className="tabs">
         <div className="tab-list" role="tablist">
@@ -640,7 +684,7 @@ export function CustomerDetailTabs({
 
       {tab === "ziyaret" && (
         <div className="tab-panel" role="tabpanel">
-          <div className="card zk-form">
+          <div className="card zk-form" ref={ziyaretFormRef}>
             <div className="zk-col">
               <div className="field">
                 <label>Gün Seç</label>
@@ -678,13 +722,11 @@ export function CustomerDetailTabs({
                     </button>
                     {parselDropdownAcik && (
                       <div className="dropdown-panel">
-                        {parcels.length > 1 && (
-                          <div className="link-row" style={{ padding: "2px 8px 6px" }}>
-                            <a onClick={() => setZiyaretParselIds(new Set(parcels.map((p) => p.id)))}>Tümünü Seç</a>
-                            <span className="sep">·</span>
-                            <a onClick={() => setZiyaretParselIds(new Set())}>Temizle</a>
-                          </div>
-                        )}
+                        <div className="link-row" style={{ padding: "2px 8px 6px" }}>
+                          <a onClick={() => setZiyaretParselIds(new Set(parcels.map((p) => p.id)))}>Tümünü Seç</a>
+                          <span className="sep">·</span>
+                          <a onClick={() => setZiyaretParselIds(new Set())}>Temizle</a>
+                        </div>
                         {parcels.map((parcel) => {
                           const veriVar = ziyaretParselKayitlari(parcel.id).length > 0;
                           const secili = ziyaretParselIds.has(parcel.id);
@@ -859,30 +901,106 @@ export function CustomerDetailTabs({
                 {ziyaretListesi.map((kayit) => {
                   const tip = recordTypeMap.get(kayit.recordTypeId);
                   const silAction = deleteRecordAction.bind(null, customer.id, kayit.parcelId);
+                  const genisletilmis = genisletilenKayitId === kayit.id;
+                  const doluAlanlar = tip
+                    ? tip.fields
+                        .map((f) => ({ label: f.label, deger: kayit.values[f.key] }))
+                        .filter((f) => f.deger !== undefined && f.deger !== null && f.deger !== "")
+                    : [];
                   return (
-                    <div className="saha-row" key={kayit.id}>
-                      <span className={`tip-badge ${tip ? tipBadgeSinifi(tip.ad) : "tip-gozlem"}`}>
-                        {tip && <Icon name={tip.ikon} />}
-                        {tip?.ad ?? "Kayıt"}
-                      </span>
-                      <div className="saha-row-body">
-                        <div className="saha-row-summary">
-                          <strong>{parcelAdMap.get(kayit.parcelId) ?? "—"}</strong> — {kayitOzeti(tip, kayit)}
-                          {kayit.gorseller && kayit.gorseller.length > 0 && (
-                            <span title={`${kayit.gorseller.length} fotoğraf`}> · 📎 {kayit.gorseller.length}</span>
-                          )}
+                    <div className="saha-row-grup" key={kayit.id}>
+                      <div className="saha-row">
+                        <span className={`tip-badge ${tip ? tipBadgeSinifi(tip.ad) : "tip-gozlem"}`}>
+                          {tip && <Icon name={tip.ikon} />}
+                          {tip?.ad ?? "Kayıt"}
+                        </span>
+                        <div className="saha-row-body">
+                          <div className="saha-row-summary">
+                            <strong>{parcelAdMap.get(kayit.parcelId) ?? "—"}</strong> — {kayitOzeti(tip, kayit)}
+                            {kayit.gorseller && kayit.gorseller.length > 0 && (
+                              <span title={`${kayit.gorseller.length} fotoğraf`}> · 📎 {kayit.gorseller.length}</span>
+                            )}
+                          </div>
+                        </div>
+                        <span className="saha-row-date">{formatKayitTarihi(kayit.tarih)}</span>
+                        <div className="saha-row-actions">
+                          <button
+                            type="button"
+                            className="icon-btn"
+                            title="Görüntüle"
+                            aria-expanded={genisletilmis}
+                            onClick={() => setGenisletilenKayitId((onceki) => (onceki === kayit.id ? null : kayit.id))}
+                          >
+                            <Icon name="eye" />
+                          </button>
+                          <button type="button" className="icon-btn" title="Düzenle" onClick={() => kayitDuzenlemeyeAc(kayit)}>
+                            <Icon name="edit" />
+                          </button>
+                          <ConfirmDeleteButton
+                            action={silAction.bind(null, kayit.id)}
+                            message={
+                              <>
+                                &quot;<strong>{tip?.ad ?? "Kayıt"}</strong>&quot; kaydı silinsin mi? Bu işlem geri
+                                alınamaz.
+                              </>
+                            }
+                          />
                         </div>
                       </div>
-                      <span className="saha-row-date">{formatKayitTarihi(kayit.tarih)}</span>
-                      <ConfirmDeleteButton
-                        action={silAction.bind(null, kayit.id)}
-                        message={
-                          <>
-                            &quot;<strong>{tip?.ad ?? "Kayıt"}</strong>&quot; kaydı silinsin mi? Bu işlem geri
-                            alınamaz.
-                          </>
-                        }
-                      />
+                      {genisletilmis && (
+                        <div className="saha-row-detay">
+                          <dl>
+                            <div>
+                              <dt>Parsel</dt>
+                              <dd>{parcelAdMap.get(kayit.parcelId) ?? "—"}</dd>
+                            </div>
+                            <div>
+                              <dt>Tarih</dt>
+                              <dd>{formatKayitTarihi(kayit.tarih)}</dd>
+                            </div>
+                            {doluAlanlar.map((f) => (
+                              <div key={f.label}>
+                                <dt>{f.label}</dt>
+                                <dd>{String(f.deger)}</dd>
+                              </div>
+                            ))}
+                            {kayit.fenolojikDonem && (
+                              <div>
+                                <dt>Fenolojik Dönem</dt>
+                                <dd>{kayit.fenolojikDonem}</dd>
+                              </div>
+                            )}
+                            {kayit.durum && (
+                              <div>
+                                <dt>Durum</dt>
+                                <dd>{ZIYARET_DURUM_SECENEKLERI.find((d) => d.value === kayit.durum)?.label ?? kayit.durum}</dd>
+                              </div>
+                            )}
+                            {kayit.oncelikPuani != null && (
+                              <div>
+                                <dt>Öncelik Puanı</dt>
+                                <dd>{kayit.oncelikPuani}</dd>
+                              </div>
+                            )}
+                            {kayit.not && (
+                              <div className="saha-row-detay-genis">
+                                <dt>Açıklama / Gözlem</dt>
+                                <dd>{kayit.not}</dd>
+                              </div>
+                            )}
+                          </dl>
+                          {kayit.gorseller && kayit.gorseller.length > 0 && (
+                            <div className="saha-row-detay-fotolar">
+                              {kayit.gorseller.map((url) => (
+                                <a key={url} href={url} target="_blank" rel="noreferrer">
+                                  {/* eslint-disable-next-line @next/next/no-img-element -- kullanıcı yüklediği serbest boyutlu fotoğraf, Image bileşeninin statik boyut gereksinimine uymuyor (bkz. yukarıdaki mevcut ziyaretFotoOnizlemeUrls <img> kullanımı, aynı gerekçe) */}
+                                  <img src={url} alt="Saha fotoğrafı" />
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}

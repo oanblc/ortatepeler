@@ -184,6 +184,11 @@ export function IconSprite() {
           <path d="M6 3h12v18l-2.5-1.5L13 21l-2-1.5L9 21l-3-1.5V3Z" />
           <path d="M9 8h6M9 12h6" />
         </symbol>
+        {/* Saha kaydı satırında "Görüntüle" için — kayıt detayını genişletir */}
+        <symbol id="i-eye" viewBox="0 0 24 24">
+          <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
+          <circle cx="12" cy="12" r="3" />
+        </symbol>
       </defs>
     </svg>
   );

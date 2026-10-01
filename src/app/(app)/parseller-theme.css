@@ -464,13 +464,35 @@
 .saha-card-head h3 { font-size: 15px; font-weight: 700; color: var(--ink); }
 .saha-ekle-btn { font-size: 12px; padding: 6px 11px; }
 .saha-list { display: flex; flex-direction: column; margin: 4px 20px 16px; }
-.saha-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line-soft); }
-.saha-row:first-child { border-top: none; }
+/* Border artık .saha-row-grup'ta (tek satır değil, satır + varsa genişletilmiş
+   detay panelini saran kapsayıcı) — Görüntüle açıkken aradaki border kaybolmasın. */
+.saha-row-grup { border-top: 1px solid var(--line-soft); }
+.saha-row-grup:first-child { border-top: none; }
+.saha-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; }
 .saha-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .saha-row-summary { font-size: 12.5px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .saha-row-date { flex: none; font-family: var(--font-mono-app), monospace; font-size: 11.5px; color: var(--muted); }
+.saha-row-actions { display: flex; align-items: center; gap: 2px; flex: none; }
+.saha-row-detay { padding: 2px 0 18px 48px; }
+.saha-row-detay dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px 24px; margin: 0; }
+.saha-row-detay dt { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin: 0 0 2px; }
+.saha-row-detay dd { font-size: 12.5px; color: var(--ink); margin: 0; white-space: pre-wrap; }
+.saha-row-detay-genis { grid-column: 1 / -1; }
+.saha-row-detay-fotolar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.saha-row-detay-fotolar img { width: 72px; height: 72px; object-fit: cover; border-radius: var(--radius-s); border: 1px solid var(--line); display: block; }
 .saha-footnote { display: block; text-align: center; font-size: 12px; font-weight: 600; color: var(--brand); padding: 10px 20px 18px; text-decoration: none; }
 .saha-footnote:hover { text-decoration: underline; }
+
+/* Ziyaret Kaydı "Kaydet" sonrası sayfa ortasında beliren, kendiliğinden kapanan
+   onay — sağ alttaki Toast'tan (bkz. Toast.tsx) bilinçli olarak ayrı: bu kayıt
+   akışında daha göze çarpan bir geri bildirim istendi (bkz. CustomerDetailTabs.tsx). */
+.zk-onay-overlay { position: fixed; inset: 0; z-index: 250; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.zk-onay-kart {
+  display: flex; align-items: center; gap: 10px; background: var(--surface, #fff); border-radius: var(--radius-m);
+  padding: 16px 24px; box-shadow: 0 20px 50px rgba(23, 30, 23, 0.24); font-size: 14px; font-weight: 600;
+  color: var(--good); border: 1px solid var(--good-tint); animation: toast-in 0.2s ease;
+}
+.zk-onay-kart .icon { width: 20px; height: 20px; flex: none; }
 
 /* Yeni Saha Kaydı formu — tip pill seçimi + dinamik alan ızgarası */
 .tip-pills { display: flex; flex-wrap: wrap; gap: 8px; }
