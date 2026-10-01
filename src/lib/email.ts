@@ -27,13 +27,14 @@ function getSmtpTransport() {
   return smtpTransport;
 }
 
-type SendArgs = { to: string; cc?: string[]; subject: string; html: string; replyTo?: string };
+type Attachment = { filename: string; content: Buffer };
+type SendArgs = { to: string; cc?: string[]; subject: string; html: string; replyTo?: string; attachments?: Attachment[] };
 
-async function sendEmail({ to, cc, subject, html, replyTo }: SendArgs) {
+async function sendEmail({ to, cc, subject, html, replyTo, attachments }: SendArgs) {
   const smtp = getSmtpTransport();
   if (smtp) {
     const from = process.env.SMTP_FROM ?? `Ortatepeler Zirai Danışmanlık <${process.env.SMTP_USER}>`;
-    await smtp.sendMail({ from, to, cc, subject, html, replyTo });
+    await smtp.sendMail({ from, to, cc, subject, html, replyTo, attachments });
     return;
   }
 
@@ -52,6 +53,7 @@ async function sendEmail({ to, cc, subject, html, replyTo }: SendArgs) {
         replyTo,
         subject,
         html,
+        attachments: attachments?.map((a) => ({ filename: a.filename, content: a.content.toString("base64") })),
       }),
     });
     if (!res.ok) console.error(`E-posta gönderilemedi (Resend): ${await res.text()}`);
@@ -175,4 +177,17 @@ export async function sendContactFormEmail(fields: { ad: string; telefon: string
       }),
     });
   }
+}
+
+export async function sendReportEmail(to: string, raporAdi: string, pdf: { filename: string; content: Buffer }) {
+  await sendEmail({
+    to,
+    subject: `Rapor: ${raporAdi}`,
+    html: emailLayout({
+      eyebrow: "Rapor Oluştur",
+      heading: raporAdi,
+      bodyHtml: `<p style="margin:0;">İstediğiniz rapor ekte PDF olarak yer alıyor.</p>`,
+    }),
+    attachments: [pdf],
+  });
 }
