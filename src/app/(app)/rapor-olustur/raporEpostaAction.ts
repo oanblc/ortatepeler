@@ -21,13 +21,18 @@ export async function raporEpostaylaGonderAction(
 ): Promise<RaporEpostaState> {
   await requireUser();
 
-  const to = String(formData.get("to") ?? "").trim();
+  // Birden fazla alıcı virgülle ayrılabilir (ör. müşteri kaydındaki birden
+  // çok ilgili kişi e-postası, ya da kullanıcının elle eklediği ek adresler).
+  const alicilar = String(formData.get("to") ?? "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean);
   const raporAdi = String(formData.get("raporAdi") ?? "Rapor").trim();
   const dosyaAdi = String(formData.get("dosyaAdi") ?? "rapor.pdf").trim();
   const pdf = formData.get("pdf");
 
-  if (!to || !EPOSTA_REGEX.test(to)) {
-    return { basarili: false, mesaj: "Geçerli bir e-posta adresi girin." };
+  if (alicilar.length === 0 || alicilar.some((e) => !EPOSTA_REGEX.test(e))) {
+    return { basarili: false, mesaj: "Geçerli bir e-posta adresi girin (birden fazlaysa virgülle ayırın)." };
   }
   if (!(pdf instanceof File) || pdf.size === 0) {
     return { basarili: false, mesaj: "Gönderilecek rapor bulunamadı — önce bir önizleme oluşturun." };
@@ -35,8 +40,8 @@ export async function raporEpostaylaGonderAction(
 
   try {
     const icerik = Buffer.from(await pdf.arrayBuffer());
-    await sendReportEmail(to, raporAdi, { filename: dosyaAdi, content: icerik });
-    return { basarili: true, mesaj: `Rapor ${to} adresine gönderildi.` };
+    await sendReportEmail(alicilar, raporAdi, { filename: dosyaAdi, content: icerik });
+    return { basarili: true, mesaj: `Rapor ${alicilar.join(", ")} adresine gönderildi.` };
   } catch (e) {
     return { basarili: false, mesaj: e instanceof Error ? e.message : "Rapor gönderilemedi." };
   }

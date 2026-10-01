@@ -25,6 +25,7 @@ interface MusteriSecenegi {
   id: string;
   ad: string;
   parceller: { id: string; ad: string }[];
+  ilgiliKisiEpostalari: string[];
 }
 
 interface OnizlemeSayfasi {
@@ -204,6 +205,11 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
   function musteriDegistir(id: string) {
     setMusteriId(id);
     setParselIds(new Set());
+    // Müşteri eklenirken girilen ilgili kişi(ler)in e-postası otomatik
+    // doldurulur — kullanıcı gerekirse virgülle başka adres(ler) ekleyebilir.
+    const musteri = musteriler.find((m) => m.id === id);
+    setEpostaAdresi(musteri?.ilgiliKisiEpostalari.join(", ") ?? "");
+    setEpostaDurumu(null);
   }
 
   const parselIdsAnahtari = Array.from(parselIds).sort().join(",");
@@ -444,7 +450,8 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
             <div className="ro-eposta-satir">
               <input
                 type="email"
-                placeholder="ornek@sirket.com"
+                multiple
+                placeholder="ornek@sirket.com, baska@sirket.com"
                 value={epostaAdresi}
                 onChange={(e) => setEpostaAdresi(e.target.value)}
                 disabled={epostaGonderiliyor}

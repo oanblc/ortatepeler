@@ -19,6 +19,9 @@ export default async function RaporOlusturPage() {
         id: c.id,
         ad: c.ad,
         parceller: (await parcelsRepo.list(c.id)).map((p) => ({ id: p.id, ad: p.ad })),
+        // Müşteri eklenirken girilen ilgili kişi(ler)in e-postası — e-posta ile
+        // gönder alanını önceden doldurmak için (bkz. RaporOlusturView).
+        ilgiliKisiEpostalari: c.ilgiliKisiler.map((k) => k.email).filter((e): e is string => !!e),
       })),
   );
 

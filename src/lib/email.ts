@@ -28,7 +28,7 @@ function getSmtpTransport() {
 }
 
 type Attachment = { filename: string; content: Buffer };
-type SendArgs = { to: string; cc?: string[]; subject: string; html: string; replyTo?: string; attachments?: Attachment[] };
+type SendArgs = { to: string | string[]; cc?: string[]; subject: string; html: string; replyTo?: string; attachments?: Attachment[] };
 
 async function sendEmail({ to, cc, subject, html, replyTo, attachments }: SendArgs) {
   const smtp = getSmtpTransport();
@@ -179,7 +179,7 @@ export async function sendContactFormEmail(fields: { ad: string; telefon: string
   }
 }
 
-export async function sendReportEmail(to: string, raporAdi: string, pdf: { filename: string; content: Buffer }) {
+export async function sendReportEmail(to: string | string[], raporAdi: string, pdf: { filename: string; content: Buffer }) {
   await sendEmail({
     to,
     subject: `Rapor: ${raporAdi}`,
