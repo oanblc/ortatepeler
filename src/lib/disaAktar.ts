@@ -196,7 +196,9 @@ function pdfTarihSaat(iso: string): string {
 
 export interface RaporSayfaBolumu {
   baslik: string;
-  tablo: HTMLTableElement;
+  tablo?: HTMLTableElement;
+  /** `tablo` yoksa (bu dönemde veri girilmemiş) önizlemedeki BosNot metni — PDF'te tablo yerine basılır. */
+  bosMesaj?: string;
   sabitSutunSayisi?: number;
 }
 
@@ -307,7 +309,7 @@ export async function raporlariAntetliPdfeAktar(
       y += 2;
     }
 
-    sayfa.bolumler.forEach(({ baslik, tablo, sabitSutunSayisi }) => {
+    sayfa.bolumler.forEach(({ baslik, tablo, bosMesaj, sabitSutunSayisi }) => {
       doc.setFont("NotoSans", "bold");
       doc.setFontSize(7.5);
       doc.setTextColor(18, 32, 22);
@@ -317,6 +319,16 @@ export async function raporlariAntetliPdfeAktar(
       doc.line(8, y + 5, pageWidth - 8, y + 5);
       doc.setTextColor(0, 0, 0);
       y += 5;
+
+      if (!tablo) {
+        doc.setFont("NotoSans", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(132, 140, 118);
+        doc.text(bosMesaj ?? "Veri yok.", 8, y + 5);
+        doc.setTextColor(0, 0, 0);
+        y += 12;
+        return;
+      }
 
       const { grid, theadSatirSayisi } = tabloyuGrideAc(tablo);
       const theadSatirlari = grid.slice(0, theadSatirSayisi);
@@ -378,15 +390,18 @@ export async function raporlariAntetliPdfeAktar(
 export function govdeBolumlerindenTopla(konteyner: HTMLElement): RaporSayfaBolumu[] {
   const sonuc: RaporSayfaBolumu[] = [];
   konteyner.querySelectorAll(".govde-bolum").forEach((bolum) => {
-    const tablo = bolum.querySelector("table");
-    if (!tablo) return;
     const baslikEl = bolum.querySelector(".govde-bolum-baslik");
-    const sabitStr = bolum.getAttribute("data-sabit-sutun");
-    sonuc.push({
-      baslik: baslikEl?.textContent?.trim() || "Tablo",
-      tablo: tablo as HTMLTableElement,
-      sabitSutunSayisi: sabitStr ? Number(sabitStr) : undefined,
-    });
+    const baslik = baslikEl?.textContent?.trim() || "Tablo";
+    const tablo = bolum.querySelector("table");
+    if (tablo) {
+      const sabitStr = bolum.getAttribute("data-sabit-sutun");
+      sonuc.push({ baslik, tablo: tablo as HTMLTableElement, sabitSutunSayisi: sabitStr ? Number(sabitStr) : undefined });
+      return;
+    }
+    // Tablo yok — bu dönemde veri girilmemiş demektir (bkz. BosNot). Önizlemedeki
+    // "... kaydı girilmedi" notu PDF'te de görünsün diye bölüm atlanmaz.
+    const bosNotEl = bolum.querySelector(".rapor-bos-not");
+    if (bosNotEl) sonuc.push({ baslik, bosMesaj: bosNotEl.textContent?.trim() || "Veri yok." });
   });
   return sonuc;
 }

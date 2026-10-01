@@ -425,15 +425,19 @@ export function RaporOlusturView({ musteriler, hazirlayan }: { musteriler: Muste
               const toplananSayfalar = raporSayfalariniTopla(onizlemeRef.current);
               const cokSayfali = toplananSayfalar.length > 1;
               return toplananSayfalar.flatMap((s, sayfaIndex) =>
-                s.bolumler.map((b) => ({
-                  // Haftalık Rapor gibi çok sayfalı (her hafta ayrı sayfa) türlerde
-                  // her sayfanın aynı isimli bölümü (ör. "İklim") olabildiği için
-                  // sayfa numarası önekiyle ayrıştırılır — aksi halde Excel sayfa
-                  // adı çakışması (ExcelJS aynı worksheet adını iki kez kabul etmez).
-                  baslik: (cokSayfali ? `${sayfaIndex + 1}. ${b.baslik}` : `${s.baslik} — ${b.baslik}`).slice(0, 110),
-                  eleman: b.tablo,
-                  sabitSutunSayisi: b.sabitSutunSayisi,
-                })),
+                s.bolumler
+                  // Veri girilmemiş (bosMesaj'lı, tablosuz) bölümler Excel'de boş bir
+                  // sayfa açmaz — ham veri ilkesi gereği sadece gerçek tablolar aktarılır.
+                  .filter((b): b is typeof b & { tablo: HTMLTableElement } => !!b.tablo)
+                  .map((b) => ({
+                    // Haftalık Rapor gibi çok sayfalı (her hafta ayrı sayfa) türlerde
+                    // her sayfanın aynı isimli bölümü (ör. "İklim") olabildiği için
+                    // sayfa numarası önekiyle ayrıştırılır — aksi halde Excel sayfa
+                    // adı çakışması (ExcelJS aynı worksheet adını iki kez kabul etmez).
+                    baslik: (cokSayfali ? `${sayfaIndex + 1}. ${b.baslik}` : `${s.baslik} — ${b.baslik}`).slice(0, 110),
+                    eleman: b.tablo,
+                    sabitSutunSayisi: b.sabitSutunSayisi,
+                  })),
               );
             }}
             antetliPdfGetir={() => {
