@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Icon } from "@/components/IconSprite";
+import { Toast } from "@/components/Toast";
 import { DisaAktarButton } from "@/components/DisaAktarButton";
 import { RaporAntetSayfasi } from "@/components/RaporAntetSayfasi";
 import { RAPOR_TURLERI, raporTuruBul, type KapsamModu } from "@/lib/raporTurleri";
@@ -144,6 +145,15 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
       setEpostaDurumu(sonuc);
     });
   }
+
+  // Başarı mesajı Toast (sağ altta beliren popup) olarak gösterilir — diğer
+  // Toast kullanımlarıyla (bkz. MusterilerBanner.tsx) aynı 4 saniyelik
+  // kendiliğinden kapanma süresi.
+  useEffect(() => {
+    if (!epostaDurumu?.basarili) return;
+    const zamanlayici = setTimeout(() => setEpostaDurumu(null), 4000);
+    return () => clearTimeout(zamanlayici);
+  }, [epostaDurumu]);
 
   useEffect(() => {
     if (!buyukGorunum) return;
@@ -298,6 +308,7 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
 
   return (
     <div className="rapor-olustur-layout">
+      {epostaDurumu?.basarili && <Toast message={epostaDurumu.mesaj} />}
       <div className="card ro-form">
         <div className="ro-field span-2" style={{ marginBottom: 18 }}>
           <label>Rapor Türü</label>
@@ -465,8 +476,8 @@ export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[]
                 {epostaGonderiliyor ? "Gönderiliyor…" : "E-posta ile Gönder"}
               </button>
             </div>
-            {epostaDurumu && (
-              <div className={`ro-eposta-durum${epostaDurumu.basarili ? " basarili" : " hata"}`}>{epostaDurumu.mesaj}</div>
+            {epostaDurumu && !epostaDurumu.basarili && (
+              <div className="ro-eposta-durum hata">{epostaDurumu.mesaj}</div>
             )}
           </div>
           <DisaAktarButton
