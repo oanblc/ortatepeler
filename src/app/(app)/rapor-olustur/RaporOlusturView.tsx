@@ -26,12 +26,6 @@ interface MusteriSecenegi {
   parceller: { id: string; ad: string }[];
 }
 
-interface HazirlayanBilgisi {
-  ad: string;
-  unvan: string;
-  iletisim: string;
-}
-
 interface OnizlemeSayfasi {
   eyebrow: string;
   baslik: string;
@@ -99,7 +93,7 @@ function varsayilanSira(): string[] {
   return RAPOR_TURLERI.map((t) => t.id);
 }
 
-export function RaporOlusturView({ musteriler, hazirlayan }: { musteriler: MusteriSecenegi[]; hazirlayan: HazirlayanBilgisi }) {
+export function RaporOlusturView({ musteriler }: { musteriler: MusteriSecenegi[] }) {
   const [raporTuruId, setRaporTuruId] = useState(RAPOR_TURLERI[0]!.id);
   const raporTuru = raporTuruBul(raporTuruId)!;
 
@@ -443,7 +437,7 @@ export function RaporOlusturView({ musteriler, hazirlayan }: { musteriler: Muste
             antetliPdfGetir={() => {
               const toplananSayfalar = raporSayfalariniTopla(onizlemeRef.current);
               if (toplananSayfalar.length === 0) return null;
-              return { sayfalar: toplananSayfalar, hazirlayan, olusturulmaZamani: olusturulmaZamani || new Date().toISOString() };
+              return { sayfalar: toplananSayfalar, olusturulmaZamani: olusturulmaZamani || new Date().toISOString() };
             }}
           />
         </div>
@@ -470,12 +464,8 @@ export function RaporOlusturView({ musteriler, hazirlayan }: { musteriler: Muste
                   baslik={sayfa.baslik}
                   altBaslik={sayfa.altBaslik}
                   metaSatirlari={sayfa.metaSatirlari}
-                  hazirlayanAd={hazirlayan.ad}
-                  hazirlayanUnvan={hazirlayan.unvan}
-                  hazirlayanIletisim={hazirlayan.iletisim}
                   olusturulmaZamani={olusturulmaZamani}
                   sayfaNo={sayfalar.length > 1 ? { mevcut: i + 1, toplam: sayfalar.length } : undefined}
-                  imzaGoster={i === sayfalar.length - 1}
                 >
                   {sayfa.icerik}
                 </RaporAntetSayfasi>
@@ -508,12 +498,8 @@ export function RaporOlusturView({ musteriler, hazirlayan }: { musteriler: Muste
                   baslik={sayfa.baslik}
                   altBaslik={sayfa.altBaslik}
                   metaSatirlari={sayfa.metaSatirlari}
-                  hazirlayanAd={hazirlayan.ad}
-                  hazirlayanUnvan={hazirlayan.unvan}
-                  hazirlayanIletisim={hazirlayan.iletisim}
                   olusturulmaZamani={olusturulmaZamani}
                   sayfaNo={sayfalar.length > 1 ? { mevcut: i + 1, toplam: sayfalar.length } : undefined}
-                  imzaGoster={i === sayfalar.length - 1}
                 >
                   {sayfa.icerik}
                 </RaporAntetSayfasi>

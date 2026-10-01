@@ -210,25 +210,18 @@ export interface RaporSayfaGirdisi {
   bolumler: RaporSayfaBolumu[];
 }
 
-export interface RaporHazirlayanBilgisi {
-  ad: string;
-  unvan: string;
-  iletisim: string;
-}
-
 /**
  * Rapor Oluştur ekranının kurumsal antetli PDF'i — RaporAntetSayfasi.tsx'teki
  * ekran önizlemesinin PDF karşılığı. `didDrawPage` ile HER fiziksel sayfanın
- * üstüne logo/marka/iletişim/altın çizgi, altına sayfa no + gizlilik notu
- * jsPDF çizim komutlarıyla basılır (metin aranabilir kalır) — `sayfalar`
- * dizisindeki her girdi bir "mantıksal" antetli sayfa (ör. bir hafta), kendi
- * başlık bloğunu bir kez yazar; bölümlerinin tablosu taşarsa autoTable kendi
- * iç sayfalamasını yapar, antet/altbilgi o ek sayfalarda da otomatik tekrarlanır.
+ * üstüne logo/marka/iletişim/altın çizgi, altına sayfa no basılır (metin
+ * aranabilir kalır) — `sayfalar` dizisindeki her girdi bir "mantıksal" antetli
+ * sayfa (ör. bir hafta), kendi başlık bloğunu bir kez yazar; bölümlerinin
+ * tablosu taşarsa autoTable kendi iç sayfalamasını yapar, antet/altbilgi o ek
+ * sayfalarda da otomatik tekrarlanır.
  */
 export async function raporlariAntetliPdfeAktar(
   sayfalar: RaporSayfaGirdisi[],
   dosyaAdi: string,
-  hazirlayan: RaporHazirlayanBilgisi,
   olusturulmaZamani: string,
 ) {
   const doc = await turkceFontluPdfOlustur();
@@ -269,7 +262,7 @@ export async function raporlariAntetliPdfeAktar(
     doc.setFont("NotoSans", "normal");
     doc.setFontSize(7);
     doc.setTextColor(132, 140, 118);
-    doc.text("Ortatepeler Zirai Danışmanlık Ltd. Şti. · Bu rapor yalnızca ilgili müşteri içindir.", 8, pageHeight - 7);
+    doc.text("Ortatepeler Zirai Danışmanlık Ltd. Şti.", 8, pageHeight - 7);
     doc.text(`Sayfa ${doc.getNumberOfPages()} — ${zamanEtiketi}'de oluşturuldu`, pageWidth - 8, pageHeight - 7, {
       align: "right",
     });
@@ -365,18 +358,6 @@ export async function raporlariAntetliPdfeAktar(
     // Bölüm hiç yoksa (ör. veri bulunamadı) antet/altbilgi yine de basılsın.
     if (sayfa.bolumler.length === 0) antetVeAltbilgiCiz();
   });
-
-  // Belgenin sonunda tek bir imza bloğu.
-  const sonSayfaY = pageHeight - 40;
-  doc.setFont("NotoSans", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(23, 30, 23);
-  doc.text(hazirlayan.ad, pageWidth - 60, sonSayfaY, { align: "center" });
-  doc.setFontSize(8);
-  doc.setTextColor(132, 140, 118);
-  doc.text(hazirlayan.unvan, pageWidth - 60, sonSayfaY + 5, { align: "center" });
-  doc.setDrawColor(82, 90, 76);
-  doc.line(pageWidth - 95, sonSayfaY - 4, pageWidth - 25, sonSayfaY - 4);
 
   doc.save(`${dosyaAdi}.pdf`);
 }

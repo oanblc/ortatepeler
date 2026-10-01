@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "./IconSprite";
 import { tablolariExceleAktar, tablolariPdfeAktar, raporlariAntetliPdfeAktar } from "@/lib/disaAktar";
-import type { RaporSayfaGirdisi, RaporHazirlayanBilgisi } from "@/lib/disaAktar";
+import type { RaporSayfaGirdisi } from "@/lib/disaAktar";
 
 export interface DisaAktarTablo {
   baslik: string;
@@ -27,7 +27,7 @@ export function DisaAktarButton({
   dosyaAdi: string;
   belgeBasligi: string;
   tablolariGetir: () => DisaAktarTablo[];
-  antetliPdfGetir?: () => { sayfalar: RaporSayfaGirdisi[]; hazirlayan: RaporHazirlayanBilgisi; olusturulmaZamani: string } | null;
+  antetliPdfGetir?: () => { sayfalar: RaporSayfaGirdisi[]; olusturulmaZamani: string } | null;
 }) {
   const [acik, setAcik] = useState(false);
   const [yukleniyor, setYukleniyor] = useState<"excel" | "pdf" | null>(null);
@@ -61,12 +61,7 @@ export function DisaAktarButton({
     try {
       const antetliGirdi = antetliPdfGetir?.();
       if (antetliGirdi) {
-        await raporlariAntetliPdfeAktar(
-          antetliGirdi.sayfalar,
-          dosyaAdi,
-          antetliGirdi.hazirlayan,
-          antetliGirdi.olusturulmaZamani,
-        );
+        await raporlariAntetliPdfeAktar(antetliGirdi.sayfalar, dosyaAdi, antetliGirdi.olusturulmaZamani);
       } else {
         await tablolariPdfeAktar(gecerliTablolar(), dosyaAdi, belgeBasligi);
       }

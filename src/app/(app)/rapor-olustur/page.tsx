@@ -26,14 +26,7 @@ export default async function RaporOlusturPage() {
     <>
       <Topbar title="Rapor Oluştur" breadcrumb={[]} />
       <main className="content">
-        <RaporOlusturView
-          musteriler={musteriler}
-          hazirlayan={{
-            ad: user.ad,
-            unvan: user.rol === "admin" ? "Yönetici" : "Ziraat Mühendisi",
-            iletisim: user.email,
-          }}
-        />
+        <RaporOlusturView musteriler={musteriler} />
       </main>
     </>
   );

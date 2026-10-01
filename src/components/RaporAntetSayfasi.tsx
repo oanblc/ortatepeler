@@ -4,7 +4,7 @@ import { forwardRef } from "react";
 
 // Rapor Oluştur ekranının kurumsal antetli sayfa şablonu — onaylanan tasarım
 // https://claude.ai/code/artifact/1efba5d4-a84f-4bac-9a5a-0a35b2300147'daki
-// .antet/.altin-cizgi/.rapor-baslik-blok/.rapor-govde/.imza-blok/.rapor-altbilgi
+// .antet/.altin-cizgi/.rapor-baslik-blok/.rapor-govde/.rapor-altbilgi
 // yapısının birebir React karşılığı. Her rapor türü kendi `children`'ını
 // (.govde-bolum + table.rapor-tablo) doldurur, antet/altbilgi HER ZAMAN aynı
 // kalır. `ref`, disaAktar.ts'in "ekranda görüneni oku" ilkesiyle export
@@ -20,13 +20,8 @@ export interface RaporAntetSayfasiProps {
   baslik: string;
   altBaslik: string;
   metaSatirlari: RaporAntetMetaSatiri[];
-  hazirlayanAd: string;
-  hazirlayanUnvan: string;
-  hazirlayanIletisim: string;
   olusturulmaZamani: string; // ISO — server'da üretilir, render zamanına göre DEĞİL
   sayfaNo?: { mevcut: number; toplam: number };
-  /** Sadece belgenin son mantıksal sayfasında true — imza bloğu her sayfada tekrarlanmaz. */
-  imzaGoster?: boolean;
   children: React.ReactNode;
 }
 
@@ -43,12 +38,8 @@ export const RaporAntetSayfasi = forwardRef<HTMLDivElement, RaporAntetSayfasiPro
     baslik,
     altBaslik,
     metaSatirlari,
-    hazirlayanAd,
-    hazirlayanUnvan,
-    hazirlayanIletisim,
     olusturulmaZamani,
     sayfaNo,
-    imzaGoster = false,
     children,
   },
   ref,
@@ -87,21 +78,9 @@ export const RaporAntetSayfasi = forwardRef<HTMLDivElement, RaporAntetSayfasiPro
 
       <div className="rapor-govde">{children}</div>
 
-      {imzaGoster && (
-        <div className="imza-blok">
-          <div className="imza-item">
-            <div className="imza-cizgi" />
-            <div className="imza-ad">{hazirlayanAd}</div>
-            <div className="imza-unvan">{hazirlayanUnvan}</div>
-          </div>
-        </div>
-      )}
-
       <div className="rapor-altbilgi">
         <div className="sol">
           <span>Ortatepeler Zirai Danışmanlık Ltd. Şti.</span>
-          <span>·</span>
-          <span className="gizlilik">Bu rapor yalnızca ilgili müşteri içindir.</span>
         </div>
         <span>
           {sayfaNo ? `Sayfa ${sayfaNo.mevcut} / ${sayfaNo.toplam} — ` : ""}

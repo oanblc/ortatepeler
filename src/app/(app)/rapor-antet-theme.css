@@ -119,12 +119,5 @@ table.rapor-tablo tr:last-child td { border-bottom: none; }
 .rapor-govde .pill.amber { background: var(--amber-tint); color: var(--amber); }
 .rapor-bos-not { font-size: 12px; color: var(--muted); padding: 14px 2px; margin: 0; }
 
-.imza-blok { display: flex; justify-content: flex-end; gap: 60px; padding: 30px 44px 10px; }
-.imza-item { text-align: center; }
-.imza-cizgi { width: 170px; border-top: 1px solid var(--ink-2); margin-bottom: 8px; }
-.imza-ad { font-size: 12px; font-weight: 700; }
-.imza-unvan { font-size: 10.5px; color: var(--muted); }
-
 .rapor-altbilgi { margin-top: auto; border-top: 1px solid var(--line-soft); padding: 16px 44px; display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; color: var(--muted); }
 .rapor-altbilgi .sol { display: flex; align-items: center; gap: 8px; }
-.rapor-altbilgi .gizlilik { font-style: italic; }
