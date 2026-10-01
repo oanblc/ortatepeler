@@ -61,14 +61,6 @@ async function sendEmail({ to, cc, subject, html, replyTo }: SendArgs) {
   console.log(`[e-posta devre dışı] Alıcı: ${to}${cc?.length ? ` (cc: ${cc.join(", ")})` : ""}\nKonu: ${subject}\n${html}`);
 }
 
-export async function sendPasswordResetEmail(to: string, resetUrl: string) {
-  await sendEmail({
-    to,
-    subject: "Şifre sıfırlama bağlantınız",
-    html: `<p>Ortatepeler Zirai Danışmanlık hesabınız için şifre sıfırlama isteği aldık.</p><p><a href="${resetUrl}">Yeni şifrenizi belirlemek için buraya tıklayın</a></p><p>Bağlantı 1 saat geçerlidir. Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz.</p>`,
-  });
-}
-
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
@@ -78,27 +70,109 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
+// Tüm e-postaların ortak kurumsal zarfı — site ile aynı marka dili (logo beyaz
+// kart üzerinde, koyu yeşil + teal + altın şerit). Masaüstü/mobil e-posta
+// istemcileri için tablo tabanlı, satır içi stilli (çoğu istemci <style>
+// etiketini yok sayar) sade bir yapı.
+function emailLayout({
+  eyebrow,
+  heading,
+  bodyHtml,
+  cta,
+}: {
+  eyebrow: string;
+  heading: string;
+  bodyHtml: string;
+  cta?: { label: string; href: string };
+}) {
+  const ctaHtml = cta
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0 4px;"><tr><td style="border-radius:999px;background:#0b7d73;">
+        <a href="${cta.href}" style="display:inline-block;padding:13px 26px;font:700 14px/1.2 Arial,Helvetica,sans-serif;color:#ffffff;text-decoration:none;border-radius:999px;">${escapeHtml(cta.label)}</a>
+      </td></tr></table>`
+    : "";
+
+  return `<!doctype html>
+<html lang="tr">
+<body style="margin:0;padding:0;background:#eef2e6;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2e6;padding:36px 16px;">
+    <tr><td align="center">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(18,32,22,0.04);">
+        <tr><td style="background:#122016;padding:28px 32px;">
+          <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:#ffffff;border-radius:8px;padding:7px 12px;">
+            <img src="https://ortatepeler.com/ortatepeler-logo.png" alt="Ortatepeler Zirai Danışmanlık" height="22" style="display:block;height:22px;width:auto;border:0;">
+          </td></tr></table>
+        </td></tr>
+        <tr><td style="height:3px;background:#c99a3f;line-height:0;font-size:0;">&nbsp;</td></tr>
+        <tr><td style="padding:36px 32px 32px;">
+          <p style="margin:0 0 10px;font:700 11px/1 Arial,Helvetica,sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:#0b7d73;">${escapeHtml(eyebrow)}</p>
+          <h1 style="margin:0 0 18px;font:700 22px/1.3 Georgia,'Times New Roman',serif;color:#171e17;">${escapeHtml(heading)}</h1>
+          <div style="font:400 14px/1.7 Arial,Helvetica,sans-serif;color:#525a4c;">${bodyHtml}</div>
+          ${ctaHtml}
+        </td></tr>
+        <tr><td style="padding:22px 32px;border-top:1px solid #e4e8db;background:#f8faf2;">
+          <p style="margin:0;font:700 13px/1.4 Arial,Helvetica,sans-serif;color:#171e17;">Ortatepeler Zirai Danışmanlık Ltd. Şti.</p>
+          <p style="margin:4px 0 0;font:400 12px/1.6 Arial,Helvetica,sans-serif;color:#848c76;">Gürselpaşa Mah. 75672 Sk. Atagün Sitesi A Blok No:4, Seyhan / Adana · 0505 428 65 98</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+export async function sendPasswordResetEmail(to: string, resetUrl: string) {
+  await sendEmail({
+    to,
+    subject: "Şifre sıfırlama bağlantınız",
+    html: emailLayout({
+      eyebrow: "Hesap Güvenliği",
+      heading: "Şifre sıfırlama isteği aldık",
+      bodyHtml: `<p style="margin:0 0 12px;">Ortatepeler Zirai Danışmanlık hesabınız için bir şifre sıfırlama isteği aldık. Aşağıdaki butona tıklayarak yeni şifrenizi belirleyebilirsiniz.</p><p style="margin:0;">Bağlantı 1 saat geçerlidir. Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz, hesabınızda herhangi bir değişiklik yapılmayacaktır.</p>`,
+      cta: { label: "Yeni Şifre Belirle", href: resetUrl },
+    }),
+  });
+}
+
 export async function sendContactFormEmail(fields: { ad: string; telefon: string; eposta: string; mesaj: string }) {
   const to = process.env.CONTACT_FORM_TO ?? "bilgi@ortatepeler.com";
   const cc = (process.env.CONTACT_FORM_CC ?? "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
-  const body = `<p><b>Ad Soyad:</b> ${escapeHtml(fields.ad)}</p><p><b>Telefon:</b> ${escapeHtml(fields.telefon)}</p><p><b>E-posta:</b> ${escapeHtml(fields.eposta)}</p><p><b>Mesaj:</b><br>${escapeHtml(fields.mesaj).replace(/\n/g, "<br>")}</p>`;
+
+  const detayRow = (label: string, value: string) =>
+    `<tr><td style="padding:8px 0;border-top:1px solid #e4e8db;font:700 12px/1.4 Arial,Helvetica,sans-serif;color:#848c76;width:110px;vertical-align:top;">${escapeHtml(label)}</td><td style="padding:8px 0;border-top:1px solid #e4e8db;font:400 14px/1.5 Arial,Helvetica,sans-serif;color:#171e17;">${escapeHtml(value)}</td></tr>`;
+
+  const internalBody = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:4px;">
+      ${detayRow("Ad Soyad", fields.ad)}
+      ${detayRow("Telefon", fields.telefon)}
+      ${detayRow("E-posta", fields.eposta || "—")}
+    </table>
+    <p style="margin:18px 0 0;font:700 12px/1.4 Arial,Helvetica,sans-serif;color:#848c76;text-transform:uppercase;letter-spacing:0.04em;">Mesaj</p>
+    <p style="margin:8px 0 0;white-space:pre-wrap;">${escapeHtml(fields.mesaj)}</p>`;
 
   await sendEmail({
     to,
     cc: cc.length ? cc : undefined,
     subject: `Web sitesi iletişim formu — ${fields.ad}`,
-    html: body,
-    replyTo: fields.eposta || undefined,
+    html: emailLayout({
+      eyebrow: "İletişim Formu",
+      heading: "Web sitesinden yeni bir talep geldi",
+      bodyHtml: internalBody,
+      cta: fields.eposta ? { label: "Yanıtla", href: `mailto:${fields.eposta}` } : undefined,
+    }),
   });
 
   if (fields.eposta) {
     await sendEmail({
       to: fields.eposta,
       subject: "Talebiniz bize ulaştı — Ortatepeler Zirai Danışmanlık",
-      html: `<p>Merhaba ${escapeHtml(fields.ad)},</p><p>İletişim formu üzerinden gönderdiğiniz talep bize ulaştı. En kısa sürede size dönüş yapacağız.</p><p>Acil bir durum varsa doğrudan <a href="tel:+905054286598">0505 428 65 98</a> numaramızdan bize ulaşabilirsiniz.</p><p>Ortatepeler Zirai Danışmanlık Ltd. Şti.</p>`,
+      html: emailLayout({
+        eyebrow: "Teşekkürler",
+        heading: `Merhaba ${fields.ad.split(" ")[0]}, talebiniz bize ulaştı`,
+        bodyHtml: `<p style="margin:0 0 12px;">İletişim formu üzerinden gönderdiğiniz talep ekibimize ulaştı. Bahçenizi değerlendirip en kısa sürede size dönüş yapacağız.</p><p style="margin:0;">Acil bir durum varsa doğrudan telefonla da bize ulaşabilirsiniz.</p>`,
+        cta: { label: "0505 428 65 98", href: "tel:+905054286598" },
+      }),
     });
   }
 }
