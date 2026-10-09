@@ -1,4 +1,4 @@
-import { readCollection, insertOne, updateOne, deleteOne, newId } from "./db";
+import { readCollection, writeCollection, insertOne, updateOne, deleteOne, newId } from "./db";
 import type {
   User,
   PasswordReset,
@@ -367,11 +367,46 @@ export const parselDegerlendirmeleri = {
 // bağlı olmayan global bir koleksiyon, yönetici ekleyip silebilir (güncelleme yok).
 // Kayıtlar'daki "Hastalık / Zararlı" tipinin "Etken/Zararlı" alanı bu listeden
 // seçilir (bkz. YeniKayitForm.tsx).
+// Başlangıç listesi: canlıda data/ dosyası zaten oluşmuş olduğu için seed/ klasörü işe yaramıyor;
+// bu yüzden liste ilk okunuşta BİR KEZ eklenir ve bir bayrakla işaretlenir (data/sistem-bayraklari.json).
+// Sonradan yönetici silerse geri gelmez, yeni bir varsayılan eklemek için bayrak adındaki sürümü (v2…) artırın.
+const HASTALIK_VARSAYILANLARI = [
+  "Kırmızı örümcek",
+  "Kırmızı örümcek yumurtası",
+  "Yaprak biti",
+  "Galeri güvesi",
+  "Unlu bit",
+  "Pas",
+  "Kabuklu bit",
+];
+const HASTALIK_BAYRAGI = "hastalik-varsayilanlari-v1";
+let hastalikTohumu: Promise<void> | null = null;
+
+async function hastalikVarsayilanlariniEkle() {
+  const bayraklar = await readCollection<{ id: string }>("sistem-bayraklari");
+  if (bayraklar.some((b) => b.id === HASTALIK_BAYRAGI)) return;
+  const mevcut = await readCollection<HastalikTanimi>(COLLECTIONS.hastalikTanimlari);
+  const mevcutAdlar = new Set(mevcut.map((h) => h.ad.trim().toLocaleLowerCase("tr")));
+  const simdi = new Date().toISOString();
+  const yeniler = HASTALIK_VARSAYILANLARI.filter((ad) => !mevcutAdlar.has(ad.toLocaleLowerCase("tr"))).map(
+    (ad) => ({ id: newId(), ad, createdAt: simdi }),
+  );
+  if (yeniler.length > 0) await writeCollection(COLLECTIONS.hastalikTanimlari, [...mevcut, ...yeniler]);
+  await writeCollection("sistem-bayraklari", [...bayraklar, { id: HASTALIK_BAYRAGI, createdAt: simdi }]);
+}
+
 export const hastalikTanimlari = {
-  list: async () =>
-    (await readCollection<HastalikTanimi>(COLLECTIONS.hastalikTanimlari)).sort((a, b) =>
+  list: async () => {
+    // Eşzamanlı ilk isteklerde çift eklenmesin diye tek bir söz (promise) paylaşılır.
+    hastalikTohumu ??= hastalikVarsayilanlariniEkle().catch((e) => {
+      hastalikTohumu = null;
+      throw e;
+    });
+    await hastalikTohumu;
+    return (await readCollection<HastalikTanimi>(COLLECTIONS.hastalikTanimlari)).sort((a, b) =>
       a.ad.localeCompare(b.ad, "tr"),
-    ),
+    );
+  },
   create: (ad: string) =>
     insertOne<HastalikTanimi>(COLLECTIONS.hastalikTanimlari, { id: newId(), ad, createdAt: new Date().toISOString() }),
   update: (id: string, ad: string) => updateOne<HastalikTanimi>(COLLECTIONS.hastalikTanimlari, id, { ad }),
