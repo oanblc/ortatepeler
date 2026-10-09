@@ -82,7 +82,7 @@
 .ot-header { position: sticky; top: 0; z-index: 60; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
 .ot-header-row { max-width: 1296px; margin: 0 auto; box-sizing: border-box; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 @media (max-width: 760px) { .ot-header-row { padding: 14px 20px; } }
-.ot-header-brand img { height: 45px; width: auto; display: block; }
+.ot-header-brand img { height: 50px; width: auto; display: block; }
 .ot-header-links { display: flex; align-items: center; gap: 30px; }
 .ot-header-links a { text-decoration: none; color: var(--ink-2); font-size: 13.5px; font-weight: 600; }
 .ot-header-links a:hover { color: var(--brand-hover); }
