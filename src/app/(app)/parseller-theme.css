@@ -1145,3 +1145,13 @@ table.gg-table { width: 100%; border-collapse: collapse; }
 .rv-durum[data-durum="yapildi"] { background: #eef8f1; border-color: #c9e6d3; color: #1b6b3a; }
 .rv-git { color: var(--brand); text-decoration: none; font-weight: 600; }
 .rv-aksiyon { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+/* Plan/kayıt sayfalarındaki yıl seçici + Uygulamalar kartlarında tıklanabilir durum kutusu */
+.yil-secici { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.yil-secici label { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.yil-secici select { border: 1px solid var(--line); border-radius: var(--radius-s); padding: 8px 12px; font: inherit; font-size: 13px; background: #fff; }
+.yil-secici select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
+.yil-secici-not { font-size: 12px; color: var(--muted); }
+a.app-empty { display: block; text-decoration: none; color: inherit; cursor: pointer; }
+a.app-empty:hover { border-color: var(--brand); background: var(--brand-tint); }
+a.app-empty p { color: var(--brand); font-weight: 600; }

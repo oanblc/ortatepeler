@@ -4,9 +4,12 @@ import { requireUser, canAccessCustomer } from "@/lib/session";
 import { sulamaUyumuHesapla } from "@/lib/sulamaUyumu";
 import { Topbar } from "@/components/Topbar";
 import { SulamaUyumuView } from "./SulamaUyumuView";
+import { YilSecici } from "@/components/YilSecici";
+import { varsayilanYil, yilSecenekleri } from "@/lib/yilFiltre";
 
 export default async function SulamaUyumuPage(props: PageProps<"/musteriler/[id]/parseller/[parcelId]/sulama-uyumu">) {
   const { id, parcelId } = await props.params;
+  const searchParams = await props.searchParams;
   const user = await requireUser();
   const customer = (await customers.list()).find((c) => c.id === id);
   if (!customer || !canAccessCustomer(user, customer.sorumluMuhendisId)) notFound();
@@ -23,7 +26,10 @@ export default async function SulamaUyumuPage(props: PageProps<"/musteriler/[id]
   const tumKayitlar = await records.list(customer.id, parcel.id);
   const uygulananTarihler = tumKayitlar.filter((r) => r.recordTypeId === sulamaTipi?.id).map((r) => r.tarih);
 
-  const planGorunumleri = planlar.map((plan) => ({
+  // Plan, başlangıç yılına göre gruplanır.
+  const kayitliYillar = Array.from(new Set(planlar.map((p) => Number(p.donemBaslangic.slice(0, 4))).filter((n) => Number.isFinite(n))));
+  const secilenYil = varsayilanYil(kayitliYillar, searchParams.yil);
+  const planGorunumleri = planlar.filter((p) => Number(p.donemBaslangic.slice(0, 4)) === secilenYil).map((plan) => ({
     plan,
     sonuc: sulamaUyumuHesapla(plan.planlananTarihler, uygulananTarihler),
   }));
@@ -40,6 +46,7 @@ export default async function SulamaUyumuPage(props: PageProps<"/musteriler/[id]
         ]}
       />
       <main className="content">
+        <YilSecici secilen={secilenYil} yiller={yilSecenekleri(kayitliYillar, secilenYil)} kayitli={kayitliYillar} />
         <SulamaUyumuView customer={customer} parcel={parcel} planGorunumleri={planGorunumleri} />
       </main>
     </>

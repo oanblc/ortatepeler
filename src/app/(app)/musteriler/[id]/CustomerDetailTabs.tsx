@@ -1364,11 +1364,11 @@ export function CustomerDetailTabs({
                       </div>
                       <div className="app-desc">Parsele tanımlı gübre/beslenme programı ve uygulama kayıtları.</div>
                       {(beslenmePlanSayilari[parcel.id] ?? 0) > 0 ? (
-                        <div className="app-empty">
+                        <Link href={`/musteriler/${customer.id}/parseller/${parcel.id}/beslenme`} className="app-empty">
                           <p>
                             {parcel.ad} için {beslenmePlanSayilari[parcel.id]} sezon planı var.
                           </p>
-                        </div>
+                        </Link>
                       ) : (
                         <div className="app-empty">
                           <p>{parcel.ad} için henüz beslenme planı tanımlanmadı.</p>
@@ -1389,11 +1389,11 @@ export function CustomerDetailTabs({
                       </div>
                       <div className="app-desc">Sulama suyuna karışan gübre uygulamaları ve doz hesaplamaları.</div>
                       {(fertigasyonKayitSayilari[parcel.id] ?? 0) > 0 ? (
-                        <div className="app-empty">
+                        <Link href={`/musteriler/${customer.id}/parseller/${parcel.id}/fertigasyon`} className="app-empty">
                           <p>
                             {parcel.ad} için {fertigasyonKayitSayilari[parcel.id]} fertigasyon kaydı var.
                           </p>
-                        </div>
+                        </Link>
                       ) : (
                         <div className="app-empty">
                           <p>{parcel.ad} için henüz fertigasyon kaydı girilmedi.</p>
@@ -1414,11 +1414,11 @@ export function CustomerDetailTabs({
                       </div>
                       <div className="app-desc">Planlanan ve gerçekleşen sulamanın dönem bazında karşılaştırması.</div>
                       {(sulamaPlanSayilari[parcel.id] ?? 0) > 0 ? (
-                        <div className="app-empty">
+                        <Link href={`/musteriler/${customer.id}/parseller/${parcel.id}/sulama-uyumu`} className="app-empty">
                           <p>
                             {parcel.ad} için {sulamaPlanSayilari[parcel.id]} sulama planı var.
                           </p>
-                        </div>
+                        </Link>
                       ) : (
                         <div className="app-empty">
                           <p>{parcel.ad} için henüz sulama planı tanımlanmadı.</p>
@@ -1439,17 +1439,17 @@ export function CustomerDetailTabs({
                       </div>
                       <div className="app-desc">Yıllık yaprak gübreleme uygulama planı — Block No, Cultivar, Ha ve ağaç/ha otomatik dolu.</div>
                       {(yaprakGubrelemeYilSayilari[parcel.id] ?? 0) > 0 ? (
-                        <div className="app-empty">
+                        <Link href={`/musteriler/${customer.id}/yaprak-gubreleme-plani?parcel=${parcel.id}`} className="app-empty">
                           <p>
                             {parcel.ad} için {yaprakGubrelemeYilSayilari[parcel.id]} yıl planı var.
                           </p>
-                        </div>
+                        </Link>
                       ) : (
                         <div className="app-empty">
                           <p>{parcel.ad} için henüz yaprak gübreleme planı girilmedi.</p>
                         </div>
                       )}
-                      <Link href={`/musteriler/${customer.id}/yaprak-gubreleme-plani?parcel=${parcel.id}`} className="app-cta app-cta-active">
+                      <Link href={`/musteriler/${customer.id}/yaprak-gubreleme-plani?parcel=${parcel.id}&yil=${new Date().getFullYear()}`} className="app-cta app-cta-active">
                         <Icon name="plus" />
                         Plan Ekle
                       </Link>

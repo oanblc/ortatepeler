@@ -3,6 +3,7 @@ import { customers, parcels as parcelsRepo, yaprakGubrelemePlanlari } from "@/li
 import { requireUser, canAccessCustomer } from "@/lib/session";
 import { Topbar } from "@/components/Topbar";
 import { YaprakGubrelemePlaniView } from "./YaprakGubrelemePlaniView";
+import { varsayilanYil } from "@/lib/yilFiltre";
 
 // Müşteri bazlı — Excel'deki gerçek yapıyla birebir: TÜM parseller aynı
 // tabloda satır satır (bkz. YaprakGubrelemePlaniView). Herhangi bir parselin
@@ -16,15 +17,13 @@ export default async function YaprakGubrelemePlaniPage(props: PageProps<"/muster
 
   const parcelList = await parcelsRepo.list(customer.id);
 
-  const bugunYil = new Date().getFullYear();
-  const secilenYil = Number(searchParams.yil) || bugunYil;
   const vurgulananParcelId = typeof searchParams.parcel === "string" ? searchParams.parcel : null;
 
-  const [planlar, tumYillar] = await Promise.all([
-    yaprakGubrelemePlanlari.listByYil(customer.id, secilenYil),
-    Promise.all(parcelList.map((p) => yaprakGubrelemePlanlari.list(customer.id, p.id))),
-  ]);
+  const tumYillar = await Promise.all(parcelList.map((p) => yaprakGubrelemePlanlari.list(customer.id, p.id)));
   const kayitliYillar = Array.from(new Set(tumYillar.flat().map((p) => p.yil)));
+  // ?yil= yoksa: bu yılın planı varsa o, yoksa kayıtlı en yeni yıl (eskiden boş tablo açılıyordu).
+  const secilenYil = varsayilanYil(kayitliYillar, searchParams.yil);
+  const planlar = await yaprakGubrelemePlanlari.listByYil(customer.id, secilenYil);
 
   return (
     <>
