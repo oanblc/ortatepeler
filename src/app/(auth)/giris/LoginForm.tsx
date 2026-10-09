@@ -17,7 +17,7 @@ export function LoginForm() {
           <svg className="icon">
             <use href="#i-mail" />
           </svg>
-          <input id="l-email" name="email" type="email" required placeholder="ad.soyad@ortatepeler.com" autoComplete="email" />
+          <input id="l-email" name="email" type="email" required defaultValue={state?.email ?? ""} placeholder="ad.soyad@ortatepeler.com" autoComplete="email" />
         </div>
       </div>
       <div className="a-field">
@@ -39,6 +39,11 @@ export function LoginForm() {
       <button className="a-submit" type="submit" disabled={pending}>
         {pending ? "Giriş yapılıyor…" : "Giriş yap"}
       </button>
+      {/* Mobil uygulama çıkana kadar geçici: sahada telefondan ziyaret kaydı girmek için (PWA, /saha). */}
+      <button className="a-submit-ghost" type="submit" name="hedef" value="saha" disabled={pending}>
+        Saha girişi — ziyaret kaydı gir
+      </button>
+      <p className="a-saha-not">Telefonda uygulama gibi kullanmak için giriş sonrası &quot;Ana Ekrana Ekle&quot; deyin.</p>
     </form>
   );
 }

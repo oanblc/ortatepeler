@@ -109,3 +109,4 @@
   .auth-brand { display: none; }
   .a-field-row { grid-template-columns: 1fr; }
 }
+.a-saha-not { margin: 8px 0 0; font-size: 11.5px; color: var(--auth-muted); line-height: 1.5; text-align: center; }

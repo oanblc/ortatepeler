@@ -5,10 +5,9 @@ import { AuthBrandPanel } from "../AuthBrandPanel";
 import { LoginForm } from "./LoginForm";
 
 export default async function GirisPage(props: PageProps<"/giris">) {
-  const user = await getCurrentUser();
-  if (user) redirect("/panel");
-
   const searchParams = await props.searchParams;
+  const user = await getCurrentUser();
+  if (user) redirect(searchParams.hedef === "saha" ? "/saha" : "/panel");
   const sifirlandi = searchParams.sifirlandi === "1";
 
   return (

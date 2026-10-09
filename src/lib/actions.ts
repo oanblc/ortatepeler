@@ -55,7 +55,7 @@ import { formatTelefon } from "./format";
 
 const RESET_TOKEN_GECERLILIK_MS = 60 * 60 * 1000; // 1 saat
 
-export type LoginState = { error: string } | null;
+export type LoginState = { error: string; email?: string } | null;
 
 export async function loginAction(_prevState: LoginState, formData: FormData): Promise<LoginState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -64,8 +64,13 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
 
   const user = (await users.list()).find((u) => u.email.toLowerCase() === email);
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
-    return { error: "E-posta veya şifre hatalı." };
+    // email geri döner: React 19 işlem sonrası formu sıfırlıyor, kullanıcı e-postasını yeniden yazmak zorunda kalmasın.
+    return { error: "E-posta veya şifre hatalı.", email };
   }
+
+  // "Saha girişi" butonu (mobil/PWA): oturum telefonda uygulama kapanınca düşmesin diye
+  // her zaman kalıcı çerezle açılır ve doğrudan /saha'ya yönlendirilir.
+  const sahaGirisi = formData.get("hedef") === "saha";
 
   const token = await signSessionToken(user.id);
   const cookieStore = await cookies();
@@ -74,10 +79,10 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    ...(beniHatirla ? { maxAge: SESSION_MAX_AGE } : {}),
+    ...(beniHatirla || sahaGirisi ? { maxAge: SESSION_MAX_AGE } : {}),
   });
 
-  redirect("/panel");
+  redirect(sahaGirisi ? "/saha" : "/panel");
 }
 
 export async function logoutAction() {

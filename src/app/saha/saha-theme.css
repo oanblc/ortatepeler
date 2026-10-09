@@ -1,0 +1,55 @@
+/* Saha (PWA) — mobil öncelikli, uygulama gibi sade arayüz. Admin panelinden bağımsız. */
+:root { --sh-brand: #0e9488; --sh-brand-deep: #122016; --sh-ink: #171e17; --sh-muted: #6b7466; --sh-line: #dfe4d4; --sh-bg: #eef2e6; --sh-surface: #fff; }
+html, body { background: var(--sh-bg); }
+.sh-app { min-height: 100vh; min-height: 100dvh; font-family: var(--font-sans-saha), system-ui, sans-serif; color: var(--sh-ink); background: var(--sh-bg); -webkit-text-size-adjust: 100%; }
+.sh-app * { box-sizing: border-box; }
+.sh-ust { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: calc(10px + env(safe-area-inset-top)) 16px 10px; background: var(--sh-brand-deep); color: #fff; }
+.sh-marka { display: inline-flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; font-family: var(--font-display), Georgia, serif; font-weight: 700; font-size: 17px; }
+.sh-marka img { border-radius: 7px; }
+.sh-kullanici { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: #b9c8b6; min-width: 0; }
+.sh-kullanici span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw; }
+.sh-kullanici button { background: transparent; border: 1px solid #3a4a3d; color: #fff; border-radius: 8px; padding: 6px 12px; font: inherit; font-size: 12.5px; cursor: pointer; }
+.sh-icerik { max-width: 640px; margin: 0 auto; padding: 18px 16px calc(120px + env(safe-area-inset-bottom)); }
+.sh-baslik { font-family: var(--font-display), Georgia, serif; font-size: 24px; margin: 6px 0 4px; letter-spacing: -0.01em; }
+.sh-alt { margin: 0 0 16px; color: var(--sh-muted); font-size: 14px; }
+.sh-geri { display: inline-block; padding: 8px 0; color: var(--sh-brand); text-decoration: none; font-weight: 600; font-size: 14px; }
+.sh-ara { width: 100%; padding: 13px 14px; border: 1px solid var(--sh-line); border-radius: 12px; font: inherit; font-size: 16px; background: var(--sh-surface); margin-bottom: 12px; }
+.sh-ara:focus, .sh-alan input:focus, .sh-alan textarea:focus, .sh-alan select:focus { outline: 2px solid var(--sh-brand); outline-offset: -1px; }
+.sh-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.sh-kart { position: relative; display: flex; flex-direction: column; gap: 3px; padding: 16px 40px 16px 16px; background: var(--sh-surface); border: 1px solid var(--sh-line); border-radius: 14px; text-decoration: none; color: inherit; min-height: 64px; }
+.sh-kart:active { background: #f4f7ee; }
+.sh-kart-ad { font-weight: 600; font-size: 16px; }
+.sh-kart-alt { font-size: 13px; color: var(--sh-muted); }
+.sh-ok { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 26px; color: var(--sh-muted); }
+.sh-bos { color: var(--sh-muted); font-size: 14px; padding: 12px 2px; }
+.sh-form { display: flex; flex-direction: column; gap: 18px; }
+.sh-bolum { background: var(--sh-surface); border: 1px solid var(--sh-line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.sh-bolum h2 { margin: 0; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: baseline; }
+.sh-sayac { font-size: 12.5px; font-weight: 600; color: var(--sh-brand); }
+.sh-parsel-liste { display: grid; grid-template-columns: 1fr; gap: 8px; max-height: 46vh; overflow-y: auto; padding: 2px; }
+.sh-parsel { display: grid; grid-template-columns: 28px 1fr; column-gap: 12px; align-items: center; text-align: left; padding: 12px 14px; min-height: 56px; background: var(--sh-surface); border: 1.5px solid var(--sh-line); border-radius: 12px; font: inherit; color: inherit; cursor: pointer; }
+.sh-parsel[data-secili="true"] { border-color: var(--sh-brand); background: #e8f5f3; }
+.sh-tik { grid-row: span 2; width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--sh-line); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 15px; }
+.sh-parsel[data-secili="true"] .sh-tik { background: var(--sh-brand); border-color: var(--sh-brand); }
+.sh-parsel-ad { font-weight: 600; font-size: 15px; }
+.sh-parsel-alt { font-size: 12.5px; color: var(--sh-muted); }
+.sh-hizli { display: flex; gap: 8px; }
+.sh-hizli button { flex: 1; padding: 11px; border: 1px solid var(--sh-line); background: var(--sh-surface); border-radius: 10px; font: inherit; font-size: 13.5px; font-weight: 600; color: var(--sh-ink); }
+.sh-alan { display: flex; flex-direction: column; gap: 6px; }
+.sh-alan > span { font-size: 13px; font-weight: 600; color: #3b4637; }
+.sh-alan input, .sh-alan textarea, .sh-alan select { width: 100%; padding: 12px 14px; border: 1px solid var(--sh-line); border-radius: 12px; font: inherit; font-size: 16px; background: var(--sh-surface); resize: vertical; }
+.sh-iki { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 520px) { .sh-iki { grid-template-columns: 1fr 1fr; } }
+.sh-fotolar { display: flex; flex-wrap: wrap; gap: 10px; }
+.sh-foto { position: relative; width: 88px; height: 88px; border-radius: 12px; overflow: hidden; border: 1px solid var(--sh-line); }
+.sh-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sh-foto button { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: none; background: rgba(0,0,0,0.65); color: #fff; font-size: 13px; }
+.sh-foto-ekle { width: 88px; height: 88px; border: 2px dashed #b7c1a8; border-radius: 12px; background: transparent; font: inherit; font-size: 13px; font-weight: 600; color: var(--sh-brand); }
+.sh-kaydet-cubuk { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(to top, var(--sh-bg) 70%, rgba(238,242,230,0)); }
+.sh-kaydet { display: block; width: 100%; max-width: 608px; margin: 0 auto; min-height: 54px; border: none; border-radius: 14px; background: var(--sh-brand); color: #fff; font: inherit; font-size: 16px; font-weight: 700; box-shadow: 0 8px 20px rgba(14, 148, 136, 0.3); }
+.sh-kaydet:disabled { background: #9db3ae; box-shadow: none; }
+.sh-hata { margin: 0; padding: 12px 14px; border-radius: 12px; background: #fef3f2; border: 1px solid #fecdca; color: #b42318; font-size: 14px; line-height: 1.5; }
+.sh-basari { display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 14px; background: #e8f5ee; border: 1px solid #c3e3cf; color: #174d2c; font-size: 14px; }
+.sh-basari strong { font-size: 16px; }
+.sh-basari-aksiyon { display: flex; gap: 10px; margin-top: 6px; }
+.sh-basari-aksiyon button, .sh-basari-aksiyon a { flex: 1; text-align: center; padding: 12px; border-radius: 10px; font: inherit; font-weight: 600; font-size: 14px; text-decoration: none; border: 1px solid #9fcfb2; background: #fff; color: #174d2c; }

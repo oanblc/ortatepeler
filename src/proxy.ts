@@ -8,6 +8,7 @@ export async function proxy(request: NextRequest) {
 
   if (!session) {
     const loginUrl = new URL("/giris", request.url);
+    if (request.nextUrl.pathname.startsWith("/saha")) loginUrl.searchParams.set("hedef", "saha");
     return NextResponse.redirect(loginUrl);
   }
 
@@ -30,6 +31,7 @@ export const config = {
     "/rapor-olustur/:path*",
     "/kayitlar/:path*",
     "/revizeler/:path*",
+    "/saha/:path*",
     "/kullanicilar/:path*",
   ],
 };
