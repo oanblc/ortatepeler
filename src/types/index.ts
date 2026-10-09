@@ -176,6 +176,8 @@ export interface FieldRecord {
   oncelikPuani?: number;
   /** "/uploads/ziyaret-kaydi/<visitId>/<dosyaadi>" gibi public'ten servis edilen göreli yollar. */
   gorseller?: string[];
+  /** Ziyarette tespit edilen hastalık/zararlı adları (Ayarlar > Hastalık / Zararlı listesinden). Ad olarak saklanır: liste sonradan değişse de kayıt okunur kalır. */
+  hastaliklar?: string[];
 }
 
 // Beslenme (gübreleme) planı — parsel-takip'teki src/lib/beslenme.ts hesap

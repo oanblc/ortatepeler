@@ -23,7 +23,7 @@ import {
 } from "@/lib/actions";
 import { tipBadgeSinifi, kayitOzeti, formatKayitTarihi, ONCELIK_PUANLARI, oncelikSinifi } from "@/lib/kayitlar";
 import { FENOLOJIK_DONEM_LISTESI, ZIYARET_DURUM_SECENEKLERI } from "@/lib/tarim";
-import type { Customer, Parcel, Well, Gorev, GorevDurumu, FieldRecord, RecordTypeDef, HavaGunlukOzet } from "@/types";
+import type { Customer, Parcel, Well, Gorev, GorevDurumu, FieldRecord, RecordTypeDef, HavaGunlukOzet, HastalikTanimi } from "@/types";
 
 type Tab = "genel" | "ziyaret" | "parseller" | "kuyular" | "uygulamalar" | "gorevler" | "raporlar";
 type ParcelView = "kart" | "liste";
@@ -86,6 +86,7 @@ export function CustomerDetailTabs({
   gorevler,
   records,
   recordTypes,
+  hastalikTanimlari,
   beslenmePlanSayilari = {},
   fertigasyonKayitSayilari = {},
   sulamaPlanSayilari = {},
@@ -113,6 +114,8 @@ export function CustomerDetailTabs({
   records: FieldRecord[];
   /** Ziyaret Kaydı sekmesindeki İlaçlama/Gübreleme/Yaprak Gübresi/Gözlem tip eşlemesi için. */
   recordTypes: RecordTypeDef[];
+  /** Ziyaret Kaydı'ndaki "Hastalık / Zararlı" seçici — Ayarlar > Hastalık / Zararlı listesi. */
+  hastalikTanimlari: HastalikTanimi[];
   createdAtLabel: string;
   initialTab?: Tab;
   /** ?parselEklendi=/?parselGuncellendi= query param'ından gelir — bkz. musteriler/[id]/page.tsx */
@@ -266,6 +269,9 @@ export function CustomerDetailTabs({
   const [ziyaretRecete, setZiyaretRecete] = useState("");
   const [ziyaretFenolojikDonem, setZiyaretFenolojikDonem] = useState("");
   const [ziyaretDurum, setZiyaretDurum] = useState("");
+  const [ziyaretHastaliklar, setZiyaretHastaliklar] = useState<string[]>([]);
+  const [hastalikDropdownAcik, setHastalikDropdownAcik] = useState(false);
+  const hastalikDropdownRef = useRef<HTMLDivElement>(null);
   const [ziyaretOncelik, setZiyaretOncelik] = useState<number | null>(null);
   const [ziyaretFotograflar, setZiyaretFotograflar] = useState<File[]>([]);
   const [ziyaretKaydediliyor, setZiyaretKaydediliyor] = useState(false);
@@ -282,6 +288,15 @@ export function CustomerDetailTabs({
     const zamanlayici = setTimeout(() => setKaydedildiPopup(false), 2200);
     return () => clearTimeout(zamanlayici);
   }, [kaydedildiPopup]);
+
+  useEffect(() => {
+    if (!hastalikDropdownAcik) return;
+    function disariTiklandi(e: MouseEvent) {
+      if (hastalikDropdownRef.current && !hastalikDropdownRef.current.contains(e.target as Node)) setHastalikDropdownAcik(false);
+    }
+    document.addEventListener("mousedown", disariTiklandi);
+    return () => document.removeEventListener("mousedown", disariTiklandi);
+  }, [hastalikDropdownAcik]);
 
   // Parsel(ler) seçimi dropdown olarak açılır/kapanır — çok parselli
   // müşterilerde uzun bir checkbox ızgarası formu gereksiz uzatıyordu.
@@ -357,6 +372,7 @@ export function CustomerDetailTabs({
     setZiyaretAciklama(anaKayit.not ?? "");
     setZiyaretFenolojikDonem(anaKayit.fenolojikDonem ?? "");
     setZiyaretDurum(anaKayit.durum ?? "");
+    setZiyaretHastaliklar(anaKayit.hastaliklar ?? []);
     setZiyaretOncelik(anaKayit.oncelikPuani ?? null);
     setZiyaretParselIds(new Set([parcelId]));
   }
@@ -377,6 +393,7 @@ export function CustomerDetailTabs({
     setZiyaretAciklama(kayit.not ?? "");
     setZiyaretFenolojikDonem(kayit.fenolojikDonem ?? "");
     setZiyaretDurum(kayit.durum ?? "");
+    setZiyaretHastaliklar(kayit.hastaliklar ?? []);
     setZiyaretOncelik(kayit.oncelikPuani ?? null);
     setTab("ziyaret");
     setGenisletilenKayitId(null);
@@ -405,6 +422,7 @@ export function CustomerDetailTabs({
     setZiyaretRecete("");
     setZiyaretFenolojikDonem("");
     setZiyaretDurum("");
+    setZiyaretHastaliklar([]);
     setZiyaretOncelik(null);
     setZiyaretFotograflar([]);
   }
@@ -453,6 +471,7 @@ export function CustomerDetailTabs({
       if (ziyaretRecete.trim()) fd.set("recete", ziyaretRecete.trim());
       if (ziyaretFenolojikDonem) fd.set("fenolojikDonem", ziyaretFenolojikDonem);
       if (ziyaretDurum) fd.set("durum", ziyaretDurum);
+      ziyaretHastaliklar.forEach((h) => fd.append("hastaliklar", h));
       if (ziyaretOncelik != null) fd.set("oncelikPuani", String(ziyaretOncelik));
       ziyaretFotograflar.forEach((dosya) => fd.append("fotograflar", dosya));
 
@@ -800,6 +819,54 @@ export function CustomerDetailTabs({
               </div>
 
               <div className="field">
+                <label>Hastalık / Zararlı (opsiyonel)</label>
+                <div className="dropdown" ref={hastalikDropdownRef}>
+                  <button
+                    type="button"
+                    className={`dropdown-btn${ziyaretHastaliklar.length > 0 ? " dropdown-btn-aktif" : ""}`}
+                    onClick={() => setHastalikDropdownAcik((a) => !a)}
+                  >
+                    {ziyaretHastaliklar.length === 0 ? "Hastalık seç" : `${ziyaretHastaliklar.length} seçili`}
+                    <Icon name="chevron-down" className="icon" />
+                  </button>
+                  {hastalikDropdownAcik && (
+                    <div className="dropdown-panel">
+                      {hastalikTanimlari.length === 0 ? (
+                        <div className="hk-bos">Liste boş. Ayarlar &gt; Hastalık / Zararlı&apos;dan ekleyin.</div>
+                      ) : (
+                        hastalikTanimlari.map((h) => (
+                          <div key={h.id} className="dropdown-secenek">
+                            <label>
+                              <input
+                                type="checkbox"
+                                checked={ziyaretHastaliklar.includes(h.ad)}
+                                onChange={(e) =>
+                                  setZiyaretHastaliklar((o) => (e.target.checked ? [...o.filter((x) => x !== h.ad), h.ad] : o.filter((x) => x !== h.ad)))
+                                }
+                              />
+                              {h.ad}
+                            </label>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+                {ziyaretHastaliklar.length > 0 && (
+                  <div className="hk-etiketler">
+                    {ziyaretHastaliklar.map((ad) => (
+                      <span key={ad} className="hk-etiket">
+                        {ad}
+                        <button type="button" aria-label={`${ad} kaldır`} onClick={() => setZiyaretHastaliklar((o) => o.filter((x) => x !== ad))}>
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="field">
                 <label>Öncelik Puanı (opsiyonel)</label>
                 <div className="oncelik-row">
                   {ONCELIK_PUANLARI.map((p) => (
@@ -988,6 +1055,12 @@ export function CustomerDetailTabs({
                               <div>
                                 <dt>Fenolojik Dönem</dt>
                                 <dd>{kayit.fenolojikDonem}</dd>
+                              </div>
+                            )}
+                            {kayit.hastaliklar && kayit.hastaliklar.length > 0 && (
+                              <div>
+                                <dt>Hastalık / Zararlı</dt>
+                                <dd>{kayit.hastaliklar.join(", ")}</dd>
                               </div>
                             )}
                             {kayit.durum && (

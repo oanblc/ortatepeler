@@ -374,6 +374,7 @@ export const hastalikTanimlari = {
     ),
   create: (ad: string) =>
     insertOne<HastalikTanimi>(COLLECTIONS.hastalikTanimlari, { id: newId(), ad, createdAt: new Date().toISOString() }),
+  update: (id: string, ad: string) => updateOne<HastalikTanimi>(COLLECTIONS.hastalikTanimlari, id, { ad }),
   remove: (id: string) => deleteOne(COLLECTIONS.hastalikTanimlari, id),
 };
 

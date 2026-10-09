@@ -270,11 +270,12 @@ export function haftalikRaporVerisiHazirla(params: {
   const gorulmusAnahtarlar = new Set<string>();
   const gozlemSatirlari: { tarih: string; parcelAdi: string; not: string }[] = [];
   for (const r of seciliParselKayitlari) {
-    if (!r.not || !r.not.trim()) continue;
-    const anahtar = `${r.parcelId}::${r.tarih}::${r.not}`;
+    const hastalikMetni = r.hastaliklar?.length ? `Hastalık/Zararlı: ${r.hastaliklar.join(", ")}` : "";
+    if ((!r.not || !r.not.trim()) && !hastalikMetni) continue;
+    const anahtar = `${r.parcelId}::${r.tarih}::${r.not}::${hastalikMetni}`;
     if (gorulmusAnahtarlar.has(anahtar)) continue;
     gorulmusAnahtarlar.add(anahtar);
-    gozlemSatirlari.push({ tarih: r.tarih, parcelAdi: parcelAdi(r.parcelId), not: r.not });
+    gozlemSatirlari.push({ tarih: r.tarih, parcelAdi: parcelAdi(r.parcelId), not: [r.not?.trim(), hastalikMetni].filter(Boolean).join(" — ") });
   }
   gozlemSatirlari.sort((a, b) => a.tarih.localeCompare(b.tarih));
 

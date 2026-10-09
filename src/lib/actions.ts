@@ -682,6 +682,9 @@ export async function createZiyaretKaydiAction(customerId: string, formData: For
   const recete = String(formData.get("recete") ?? "").trim();
   const fenolojikDonem = String(formData.get("fenolojikDonem") ?? "").trim();
   const durum = String(formData.get("durum") ?? "").trim();
+  const hastaliklar = Array.from(
+    new Set(formData.getAll("hastaliklar").map((h) => String(h).trim().slice(0, 100)).filter(Boolean)),
+  ).slice(0, 20);
   const oncelikPuaniHam = String(formData.get("oncelikPuani") ?? "").trim();
   const oncelikPuani = oncelikPuaniHam ? Number(oncelikPuaniHam) : undefined;
 
@@ -715,6 +718,7 @@ export async function createZiyaretKaydiAction(customerId: string, formData: For
       fenolojikDonem: fenolojikDonem || undefined,
       durum: durum || undefined,
       oncelikPuani,
+      hastaliklar: hastaliklar.length ? hastaliklar : undefined,
       gorseller: gorseller.length ? gorseller : undefined,
     };
 
@@ -1079,20 +1083,32 @@ export async function deleteDegerlendirmeSorusuAction(soruId: string, _formData:
 
 // --- Hastalık/Zararlı Listesi (Ayarlar, sadece yönetici) ------------------
 
+async function hastalikAdiOku(formData: FormData, mevcutId?: string) {
+  const ad = String(formData.get("ad") ?? "").trim().replace(/\s+/g, " ");
+  if (!ad) throw new Error("Hastalık/zararlı adı zorunlu.");
+  if (ad.length > 100) throw new Error("Ad en fazla 100 karakter olabilir.");
+  const ayni = (await hastalikTanimlari.list()).find((h) => h.id !== mevcutId && h.ad.toLocaleLowerCase("tr") === ad.toLocaleLowerCase("tr"));
+  if (ayni) throw new Error(`"${ayni.ad}" zaten listede.`);
+  return ad;
+}
+
 export async function createHastalikTanimiAction(formData: FormData) {
   await requireAdmin();
+  await hastalikTanimlari.create(await hastalikAdiOku(formData));
+  revalidatePath("/ayarlar/hastaliklar");
+}
 
-  const ad = String(formData.get("ad") ?? "").trim();
-  if (!ad) throw new Error("Hastalık/zararlı adı zorunlu.");
-
-  await hastalikTanimlari.create(ad);
-  revalidatePath("/ayarlar");
+// Ad değişirse geçmiş ziyaret kayıtları eski adla kalır (kayıtlarda ad saklanıyor, bilinçli).
+export async function updateHastalikTanimiAction(id: string, formData: FormData) {
+  await requireAdmin();
+  await hastalikTanimlari.update(id, await hastalikAdiOku(formData, id));
+  revalidatePath("/ayarlar/hastaliklar");
 }
 
 export async function deleteHastalikTanimiAction(id: string, _formData: FormData) {
   await requireAdmin();
   await hastalikTanimlari.remove(id);
-  revalidatePath("/ayarlar");
+  revalidatePath("/ayarlar/hastaliklar");
 }
 
 // --- Parsel Genel Değerlendirmesi (yılda bir) -----------------------------

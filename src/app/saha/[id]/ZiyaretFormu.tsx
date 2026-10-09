@@ -14,7 +14,7 @@ function bugun() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-export function ZiyaretFormu({ customerId, parseller }: { customerId: string; parseller: Parsel[] }) {
+export function ZiyaretFormu({ customerId, parseller, hastalikAdlari }: { customerId: string; parseller: Parsel[]; hastalikAdlari: string[] }) {
   const [secili, setSecili] = useState<Set<string>>(new Set());
   const [q, setQ] = useState("");
   const [tarih, setTarih] = useState(bugun);
@@ -22,6 +22,8 @@ export function ZiyaretFormu({ customerId, parseller }: { customerId: string; pa
   const [recete, setRecete] = useState("");
   const [fenolojik, setFenolojik] = useState("");
   const [durum, setDurum] = useState("");
+  const [hastaliklar, setHastaliklar] = useState<string[]>([]);
+  const [hastalikAra, setHastalikAra] = useState("");
   const [fotolar, setFotolar] = useState<File[]>([]);
   const [fotoIsleniyor, setFotoIsleniyor] = useState(false);
   const [gonderiliyor, setGonderiliyor] = useState(false);
@@ -61,6 +63,8 @@ export function ZiyaretFormu({ customerId, parseller }: { customerId: string; pa
     setRecete("");
     setFenolojik("");
     setDurum("");
+    setHastaliklar([]);
+    setHastalikAra("");
     setFotolar([]);
     setQ("");
   }
@@ -77,6 +81,7 @@ export function ZiyaretFormu({ customerId, parseller }: { customerId: string; pa
       if (recete.trim()) fd.set("recete", recete.trim());
       if (fenolojik) fd.set("fenolojikDonem", fenolojik);
       if (durum) fd.set("durum", durum);
+      hastaliklar.forEach((h) => fd.append("hastaliklar", h));
       fotolar.forEach((f) => fd.append("fotograflar", f));
       await createZiyaretKaydiAction(customerId, fd);
       setKaydedilen(parseller.filter((p) => secili.has(p.id)).map((p) => p.ad));
@@ -176,6 +181,33 @@ export function ZiyaretFormu({ customerId, parseller }: { customerId: string; pa
             <input ref={fotoInput} type="file" accept="image/*" multiple hidden onChange={fotoSecildi} />
           </div>
         </div>
+
+        {hastalikAdlari.length > 0 && (
+          <div className="sh-alan">
+            <span>
+              Hastalık / zararlı (isteğe bağlı) <em className="sh-sayac">{hastaliklar.length > 0 ? `${hastaliklar.length} seçili` : ""}</em>
+            </span>
+            {hastalikAdlari.length > 8 && (
+              <input type="search" value={hastalikAra} onChange={(e) => setHastalikAra(e.target.value)} placeholder="Hastalık ara…" aria-label="Hastalık ara" />
+            )}
+            <div className="sh-etiketler" role="group" aria-label="Hastalık / zararlı">
+              {hastalikAdlari
+                .filter((ad) => !hastalikAra.trim() || ad.toLocaleLowerCase("tr").includes(hastalikAra.trim().toLocaleLowerCase("tr")))
+                .map((ad) => (
+                  <button
+                    key={ad}
+                    type="button"
+                    className="sh-etiket"
+                    data-secili={hastaliklar.includes(ad)}
+                    aria-pressed={hastaliklar.includes(ad)}
+                    onClick={() => setHastaliklar((o) => (o.includes(ad) ? o.filter((x) => x !== ad) : [...o, ad]))}
+                  >
+                    {ad}
+                  </button>
+                ))}
+            </div>
+          </div>
+        )}
 
         <label className="sh-alan">
           <span>İlaç reçetesi (isteğe bağlı)</span>

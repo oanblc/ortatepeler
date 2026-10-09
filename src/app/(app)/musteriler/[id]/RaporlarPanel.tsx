@@ -135,7 +135,7 @@ export function RaporlarPanel({
           no: index + 1,
           parcel,
           durum: anaKayit.durum || "",
-          gozlem: anaKayit.not || "",
+          gozlem: [anaKayit.not, anaKayit.hastaliklar?.length ? `Hastalık/Zararlı: ${anaKayit.hastaliklar.join(", ")}` : ""].filter(Boolean).join(" — "),
           recete: (ilacKaydi?.values?.recete as string) || "",
           donem: anaKayit.fenolojikDonem || "",
           oncelikPuani: anaKayit.oncelikPuani ?? null,

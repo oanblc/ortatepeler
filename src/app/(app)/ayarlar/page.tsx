@@ -3,11 +3,6 @@ import { recordTypes, degerlendirmeSorulari, hastalikTanimlari } from "@/lib/rep
 import { requireUser } from "@/lib/session";
 import { Topbar } from "@/components/Topbar";
 import { Icon } from "@/components/IconSprite";
-import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
-import {
-  createHastalikTanimiAction,
-  deleteHastalikTanimiAction,
-} from "@/lib/actions";
 
 // Ayarlar sayfası — Kayıt Tipleri (herkes görür, salt okunur) + Genel
 // Değerlendirme Soruları + Hastalık/Zararlı Listesi (ikisi de sadece
@@ -71,40 +66,16 @@ export default async function AyarlarPage() {
           <div className="card ayarlar-card">
             <div className="card-head">
               <h3>
-                Hastalık / Zararlı Listesi<span className="admin-tag">Yönetici</span>
+                Hastalık / Zararlı<span className="admin-tag">Yönetici</span>
               </h3>
+              <Link href="/ayarlar/hastaliklar" className="btn btn-primary">
+                Hastalıkları Yönet
+              </Link>
             </div>
             <p className="card-desc">
-              Sahada karşılaşılan hastalık/zararlıları buradan tanımla — Kayıtlar&apos;daki &quot;Hastalık / Zararlı&quot;
-              formunda bu listeden seçim yapılır.
+              Sahada karşılaşılan hastalık ve zararlıların listesi. Ziyaret kaydı girerken ve Kayıtlar&apos;daki
+              &quot;Hastalık / Zararlı&quot; formunda bu listeden seçim yapılır. Şu an {hastaliklar.length} kayıt tanımlı.
             </p>
-
-            {hastaliklar.length === 0 && <p className="card-desc">Henüz hastalık/zararlı eklenmedi.</p>}
-
-            <div className="hastalik-chip-list">
-              {hastaliklar.map((hastalik) => (
-                <div className="hastalik-chip" key={hastalik.id}>
-                  {hastalik.ad}
-                  <ConfirmDeleteButton
-                    action={deleteHastalikTanimiAction.bind(null, hastalik.id)}
-                    basariliMesaj={`"${hastalik.ad}" listeden silindi.`}
-                    message={
-                      <>
-                        &quot;<strong>{hastalik.ad}</strong>&quot; öğesini listeden silmek istediğinize emin misiniz?
-                      </>
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-
-            <form action={createHastalikTanimiAction} className="soru-ekle-form">
-              <input name="ad" required placeholder="Örn. Dal Kanseri" />
-              <button type="submit" className="btn btn-primary">
-                <Icon name="plus" className="icon" />
-                Ekle
-              </button>
-            </form>
           </div>
         )}
       </main>

@@ -10,6 +10,7 @@ import {
   yaprakGubrelemePlanlari as yaprakGubrelemePlanlariRepo,
   records as recordsRepo,
   recordTypes as recordTypesRepo,
+  hastalikTanimlari as hastalikTanimlariRepo,
 } from "@/lib/repositories";
 import { requireUser, canAccessCustomer } from "@/lib/session";
 import { Topbar } from "@/components/Topbar";
@@ -28,12 +29,13 @@ export default async function MusteriDetayPage(props: PageProps<"/musteriler/[id
   const customer = (await customers.list()).find((c) => c.id === id);
   if (!customer || !canAccessCustomer(user, customer.sorumluMuhendisId)) notFound();
 
-  const [parcelList, wellList, gorevList, recordList, recordTypeList] = await Promise.all([
+  const [parcelList, wellList, gorevList, recordList, recordTypeList, hastalikListesi] = await Promise.all([
     parcelsRepo.list(customer.id),
     wellsRepo.list(customer.id),
     gorevlerRepo.list(customer.id),
     recordsRepo.listByCustomer(customer.id),
     recordTypesRepo.list(),
+    hastalikTanimlariRepo.list(),
   ]);
 
   // Uygulamalar sekmesindeki Beslenme kartında "N sezon planı var" özetini
@@ -129,6 +131,7 @@ export default async function MusteriDetayPage(props: PageProps<"/musteriler/[id
           gorevler={gorevList}
           records={recordList}
           recordTypes={recordTypeList}
+          hastalikTanimlari={hastalikListesi}
           beslenmePlanSayilari={beslenmePlanSayilari}
           fertigasyonKayitSayilari={fertigasyonKayitSayilari}
           sulamaPlanSayilari={sulamaPlanSayilari}

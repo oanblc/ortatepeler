@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { customers, parcels } from "@/lib/repositories";
+import { customers, parcels, hastalikTanimlari } from "@/lib/repositories";
 import { requireUser, canAccessCustomer } from "@/lib/session";
 import { ZiyaretFormu } from "./ZiyaretFormu";
 
@@ -19,13 +19,15 @@ export default async function SahaMusteriSayfasi(props: PageProps<"/saha/[id]">)
       urun: p.urunler.map((u) => u.urun).join(", "),
     }));
 
+  const hastaliklar = (await hastalikTanimlari.list()).map((h) => h.ad);
+
   return (
     <>
       <Link href="/saha" className="sh-geri">
         ‹ Müşteriler
       </Link>
       <h1 className="sh-baslik">{customer.ad}</h1>
-      <ZiyaretFormu customerId={customer.id} parseller={parselListesi} />
+      <ZiyaretFormu customerId={customer.id} parseller={parselListesi} hastalikAdlari={hastaliklar} />
     </>
   );
 }
