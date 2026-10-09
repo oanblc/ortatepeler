@@ -50,8 +50,10 @@
   .auth-brand .rows { animation: none; }
 }
 /* Logo koyu zeminde çıplak durunca kirli görünüyor — antetteki gibi beyaz kart üzerine oturtulur. */
-.auth-brand .top { position: relative; align-self: flex-start; display: inline-flex; align-items: center; padding: 9px 16px; background: #fff; border-radius: 10px; text-decoration: none; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); }
-.top-logo { height: 26px; width: auto; display: block; }
+.auth-brand .top { position: relative; align-self: flex-start; display: inline-flex; align-items: center; padding: 14px 24px; background: #fff; border-radius: 10px; text-decoration: none; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); }
+.top-logo { height: 52px; width: auto; display: block; }
+/* Arka planda silik büyük logo (filigran) */
+.auth-brand .filigran { position: absolute; right: -12%; bottom: 8%; width: 96%; max-width: 760px; height: auto; opacity: 0.055; transform: rotate(-9deg); pointer-events: none; user-select: none; }
 .auth-brand .mid { position: relative; max-width: 420px; }
 .auth-brand .mid h1 { color: #fff; font-size: 32px; font-weight: 600; line-height: 1.18; }
 .auth-brand .mid p { color: #a7b6a4; font-size: 14.5px; line-height: 1.6; margin: 14px 0 0; }
@@ -67,11 +69,16 @@
 
 .a-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .a-field label { font-size: 12.5px; font-weight: 600; color: var(--auth-ink-2); }
-.a-field .input-wrap { display: flex; align-items: center; gap: 8px; border: 1px solid var(--auth-line); border-radius: 6px; padding: 0 11px; background: var(--auth-surface); }
+.a-field .input-wrap { overflow: hidden; display: flex; align-items: center; gap: 8px; border: 1px solid var(--auth-line); border-radius: 6px; padding: 0 11px; background: var(--auth-surface); }
 .a-field .input-wrap:focus-within { border-color: var(--auth-brand); }
 .a-field .input-wrap .icon { width: 15px; height: 15px; color: var(--auth-muted); flex: none; }
 .a-field input { border: none; outline: none; background: transparent; padding: 10px 0; font-size: 13.5px; width: 100%; color: var(--auth-ink); font-family: inherit; }
 .a-field input:focus-visible { outline: none; }
+/* Tarayıcı otomatik doldurma (mavi zemin) yuvarlak çerçevenin dışına taşıyordu — zemini beyaza sabitle. */
+.a-field input:-webkit-autofill, .a-field input:-webkit-autofill:hover, .a-field input:-webkit-autofill:focus, .a-field input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--auth-surface) inset !important; box-shadow: 0 0 0 1000px var(--auth-surface) inset !important;
+  -webkit-text-fill-color: var(--auth-ink) !important; caret-color: var(--auth-ink); transition: background-color 9999s ease-out 0s;
+}
 .a-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 .a-check-row { display: flex; align-items: flex-start; gap: 9px; margin: 2px 0 20px; }

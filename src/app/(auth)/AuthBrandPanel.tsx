@@ -18,6 +18,7 @@ export function AuthBrandPanel({ heading, body }: { heading: string; body: strin
           </g>
         </svg>
       </div>
+      <img src="/ortatepeler-logo-white.png" alt="" aria-hidden="true" className="filigran" />
       <Link href="/giris" className="top">
         <img src="/ortatepeler-logo.png" alt="Ortatepeler Zirai Danışmanlık" className="top-logo" />
       </Link>
