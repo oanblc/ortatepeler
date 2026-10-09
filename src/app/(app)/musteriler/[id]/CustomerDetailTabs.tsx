@@ -835,7 +835,7 @@ export function CustomerDetailTabs({
                         <div className="hk-bos">Liste boş. Ayarlar &gt; Hastalık / Zararlı&apos;dan ekleyin.</div>
                       ) : (
                         hastalikTanimlari.map((h) => (
-                          <div key={h.id} className="dropdown-secenek">
+                          <div key={h.id} className="dropdown-secenek dropdown-secenek-genis">
                             <label>
                               <input
                                 type="checkbox"
