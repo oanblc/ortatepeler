@@ -7,6 +7,7 @@ import { Icon } from "@/components/IconSprite";
 import { StarPicker } from "@/components/StarPicker";
 import { useNotifications } from "@/components/NotificationsProvider";
 import { saveParselDegerlendirmeAction } from "@/lib/actions";
+import { soruTipi } from "@/lib/degerlendirme";
 import type { DegerlendirmeSorusu, ParselDegerlendirmesi } from "@/types";
 
 // Parsel Detayı'ndaki "Genel Değerlendirme" kartının içeriği — Ayarlar'da
@@ -44,11 +45,11 @@ export function GenelDegerlendirmeKarti({
       <div className="empty-state">
         <Icon name="star" className="icon" />
         <p>
-          Henüz değerlendirme sorusu tanımlanmadı.
+          Bu parsel için tanımlı değerlendirme sorusu yok.
           {isAdmin && (
             <>
               {" "}
-              <Link href="/ayarlar">Ayarlar&apos;dan ekleyebilirsiniz.</Link>
+              <Link href="/ayarlar/genel-degerlendirme">Ayarlar&apos;dan soru ekleyip parsele atayabilirsiniz.</Link>
             </>
           )}
         </p>
@@ -87,17 +88,41 @@ export function GenelDegerlendirmeKarti({
       <div className="gd-list">
         {sorular.map((soru) => {
           const cevap = mevcutDegerlendirme?.cevaplar.find((c) => c.soruId === soru.id);
+          const tip = soruTipi(soru);
           return (
             <div className="gd-item" key={soru.id}>
               <div className="gd-soru">{soru.soru}</div>
-              <StarPicker name={`puan_${soru.id}`} baslangic={cevap?.puan ?? 0} />
-              <textarea
-                name={`not_${soru.id}`}
-                defaultValue={cevap?.not}
-                placeholder="Not (opsiyonel)"
-                className="gd-not"
-                rows={2}
-              />
+              {tip === "puan" && (
+                <>
+                  <StarPicker name={`puan_${soru.id}`} baslangic={cevap?.puan ?? 0} />
+                  <textarea
+                    name={`not_${soru.id}`}
+                    defaultValue={cevap?.not}
+                    placeholder="Not (opsiyonel)"
+                    className="gd-not"
+                    rows={2}
+                  />
+                </>
+              )}
+              {tip === "secmeli" && (
+                <div className="gd-secenekler">
+                  {(soru.secenekler ?? []).map((sec) => (
+                    <label key={sec} className="gd-secenek">
+                      <input type="radio" name={`secim_${soru.id}`} value={sec} defaultChecked={cevap?.secim === sec} />
+                      <span>{sec}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+              {tip === "metin" && (
+                <textarea
+                  name={`metin_${soru.id}`}
+                  defaultValue={cevap?.metin}
+                  placeholder="Cevabınızı yazın"
+                  className="gd-not"
+                  rows={3}
+                />
+              )}
             </div>
           );
         })}

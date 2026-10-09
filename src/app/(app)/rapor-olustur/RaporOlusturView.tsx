@@ -1,5 +1,6 @@
 "use client";
 
+import { soruTipi, cevapMetni } from "@/lib/degerlendirme";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Icon } from "@/components/IconSprite";
 import { Toast } from "@/components/Toast";
@@ -1356,7 +1357,7 @@ function DegerlendirmeIcerik({
         <thead>
           <tr>
             <th>Soru</th>
-            <th>Puan</th>
+            <th>Cevap</th>
             <th>Not</th>
           </tr>
         </thead>
@@ -1366,7 +1367,7 @@ function DegerlendirmeIcerik({
             return (
               <tr key={soru.id}>
                 <td>{soru.soru}</td>
-                <td className="num">{cevap ? `${cevap.puan} / 5` : "—"}</td>
+                <td className={soruTipi(soru) === "puan" ? "num" : undefined}>{cevapMetni(soru, cevap)}</td>
                 <td>{cevap?.not || "—"}</td>
               </tr>
             );

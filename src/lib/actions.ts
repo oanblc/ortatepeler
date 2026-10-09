@@ -36,7 +36,10 @@ import type {
   FertigasyonUrun,
   GelirGiderTur,
   User,
+  DegerlendirmeSoruTipi,
+  ParselDegerlendirmesi,
 } from "@/types";
+import { soruTipi, soruParselIcinGecerli } from "./degerlendirme";
 import {
   SESSION_COOKIE,
   SESSION_MAX_AGE,
@@ -1021,30 +1024,52 @@ async function requireAdmin() {
   return user;
 }
 
-export async function createDegerlendirmeSorusuAction(formData: FormData) {
-  await requireAdmin();
-
+function degerlendirmeSorusuFormdanOku(formData: FormData) {
   const soru = String(formData.get("soru") ?? "").trim();
   if (!soru) throw new Error("Soru metni zorunlu.");
 
-  await degerlendirmeSorulari.create(soru);
-  revalidatePath("/ayarlar");
+  const tipRaw = String(formData.get("tip") ?? "puan");
+  const tip: DegerlendirmeSoruTipi = tipRaw === "secmeli" || tipRaw === "metin" ? tipRaw : "puan";
+
+  let secenekler: string[] | undefined;
+  if (tip === "secmeli") {
+    secenekler = Array.from(
+      new Set(
+        String(formData.get("secenekler") ?? "")
+          .split("\n")
+          .map((x) => x.trim())
+          .filter(Boolean),
+      ),
+    );
+    if (secenekler.length < 2) throw new Error("Seçmeli soru için en az 2 seçenek girin.");
+  }
+
+  const parselMod = String(formData.get("parselMod") ?? "tumu");
+  const parselIds =
+    parselMod === "secili" ? formData.getAll("parselIds").map(String).filter(Boolean) : undefined;
+  if (parselMod === "secili" && (!parselIds || parselIds.length === 0)) {
+    throw new Error("En az bir parsel seçin veya \"Tüm parseller\"i işaretleyin.");
+  }
+
+  return { soru, tip, secenekler, parselIds };
+}
+
+export async function createDegerlendirmeSorusuAction(formData: FormData) {
+  await requireAdmin();
+  await degerlendirmeSorulari.create(degerlendirmeSorusuFormdanOku(formData));
+  revalidatePath("/ayarlar/genel-degerlendirme");
 }
 
 export async function updateDegerlendirmeSorusuAction(soruId: string, formData: FormData) {
   await requireAdmin();
-
-  const soru = String(formData.get("soru") ?? "").trim();
-  if (!soru) throw new Error("Soru metni zorunlu.");
-
-  await degerlendirmeSorulari.update(soruId, soru);
-  revalidatePath("/ayarlar");
+  await degerlendirmeSorulari.update(soruId, degerlendirmeSorusuFormdanOku(formData));
+  revalidatePath("/ayarlar/genel-degerlendirme");
 }
 
 export async function deleteDegerlendirmeSorusuAction(soruId: string, _formData: FormData) {
   await requireAdmin();
   await degerlendirmeSorulari.remove(soruId);
-  revalidatePath("/ayarlar");
+  revalidatePath("/ayarlar/genel-degerlendirme");
 }
 
 // --- Hastalık/Zararlı Listesi (Ayarlar, sadece yönetici) ------------------
@@ -1075,13 +1100,24 @@ export async function saveParselDegerlendirmeAction(
 ) {
   await requireParcelAccess(customerId);
 
-  const sorular = await degerlendirmeSorulari.list();
-  const cevaplar: { soruId: string; puan: number; not?: string }[] = [];
+  const sorular = (await degerlendirmeSorulari.list()).filter((s) => soruParselIcinGecerli(s, parcelId));
+  const cevaplar: ParselDegerlendirmesi["cevaplar"] = [];
   for (const s of sorular) {
-    const puan = Number(formData.get(`puan_${s.id}`) ?? 0);
-    if (!puan) continue;
-    const not = String(formData.get(`not_${s.id}`) ?? "").trim() || undefined;
-    cevaplar.push({ soruId: s.id, puan, not });
+    const tip = soruTipi(s);
+    if (tip === "secmeli") {
+      const secim = String(formData.get(`secim_${s.id}`) ?? "");
+      if (!secim || !s.secenekler?.includes(secim)) continue;
+      cevaplar.push({ soruId: s.id, puan: 0, secim });
+    } else if (tip === "metin") {
+      const metin = String(formData.get(`metin_${s.id}`) ?? "").trim();
+      if (!metin) continue;
+      cevaplar.push({ soruId: s.id, puan: 0, metin });
+    } else {
+      const puan = Number(formData.get(`puan_${s.id}`) ?? 0);
+      if (!puan) continue;
+      const not = String(formData.get(`not_${s.id}`) ?? "").trim() || undefined;
+      cevaplar.push({ soruId: s.id, puan, not });
+    }
   }
 
   await parselDegerlendirmeleri.kaydet(customerId, parcelId, yil, cevaplar);

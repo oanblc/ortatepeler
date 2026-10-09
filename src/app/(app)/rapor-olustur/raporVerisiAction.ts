@@ -8,6 +8,7 @@
 // ÇAĞIRIR — hiçbiri burada yeniden yazılmaz. sulamaUyumuHesapla'nın kendisi
 // HİÇ değiştirilmez, sadece çıktısı (sonuc.gunler) tarih aralığına göre süzülür.
 
+import { soruParselIcinGecerli } from "@/lib/degerlendirme";
 import {
   customers,
   parcels as parcelsRepo,
@@ -317,7 +318,14 @@ export async function raporVerisiGetir(params: RaporVerisiParams): Promise<Rapor
         degerlendirmeSorulari.list(),
         parselDegerlendirmeleri.get(params.musteriId, parcel.id, yil),
       ]);
-      return { tur: "degerlendirme", musteriAdi: musteri.ad, parcel, yil, sorular, degerlendirme };
+      return {
+        tur: "degerlendirme",
+        musteriAdi: musteri.ad,
+        parcel,
+        yil,
+        sorular: sorular.filter((s) => soruParselIcinGecerli(s, parcel.id)),
+        degerlendirme,
+      };
     }
 
     default:

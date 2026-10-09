@@ -311,18 +311,18 @@ export const degerlendirmeSorulari = {
     (await readCollection<DegerlendirmeSorusu>(COLLECTIONS.degerlendirmeSorulari)).sort(
       (a, b) => a.siraNo - b.siraNo,
     ),
-  create: async (soru: string) => {
+  create: async (data: Pick<DegerlendirmeSorusu, "soru" | "tip" | "secenekler" | "parselIds">) => {
     const mevcutlar = await readCollection<DegerlendirmeSorusu>(COLLECTIONS.degerlendirmeSorulari);
     const siraNo = mevcutlar.length ? Math.max(...mevcutlar.map((s) => s.siraNo)) + 1 : 1;
     return insertOne<DegerlendirmeSorusu>(COLLECTIONS.degerlendirmeSorulari, {
+      ...data,
       id: newId(),
-      soru,
       siraNo,
       createdAt: new Date().toISOString(),
     });
   },
-  update: (id: string, soru: string) =>
-    updateOne<DegerlendirmeSorusu>(COLLECTIONS.degerlendirmeSorulari, id, { soru }),
+  update: (id: string, data: Pick<DegerlendirmeSorusu, "soru" | "tip" | "secenekler" | "parselIds">) =>
+    updateOne<DegerlendirmeSorusu>(COLLECTIONS.degerlendirmeSorulari, id, data),
   remove: (id: string) => deleteOne(COLLECTIONS.degerlendirmeSorulari, id),
 };
 

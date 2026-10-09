@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { customers, wells } from "@/lib/repositories";
+import { customers } from "@/lib/repositories";
 import { requireUser, canAccessCustomer } from "@/lib/session";
 import { Topbar } from "@/components/Topbar";
 import { ParselEkleWizard } from "./ParselEkleWizard";
@@ -9,8 +9,6 @@ export default async function YeniParselPage(props: PageProps<"/musteriler/[id]/
   const user = await requireUser();
   const customer = (await customers.list()).find((c) => c.id === id);
   if (!customer || !canAccessCustomer(user, customer.sorumluMuhendisId)) notFound();
-
-  const kuyular = await wells.list(customer.id);
 
   return (
     <>
@@ -23,7 +21,7 @@ export default async function YeniParselPage(props: PageProps<"/musteriler/[id]/
         ]}
       />
       <main className="content">
-        <ParselEkleWizard customer={customer} kuyular={kuyular} />
+        <ParselEkleWizard customer={customer} />
       </main>
     </>
   );

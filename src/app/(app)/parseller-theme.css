@@ -1087,3 +1087,44 @@ table.gg-table { width: 100%; border-collapse: collapse; }
 .btn-gider-vurgu { background: var(--crit); border-color: var(--crit); color: #fff; }
 .btn-gider-vurgu:hover { filter: brightness(1.08); }
 .btn-gider-vurgu:disabled { opacity: 0.6; cursor: default; }
+
+/* Sihirbaz adım 1 — sınır çizildi / çizilmedi bilgi kutusu */
+.sinir-info { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-m); border: 1px solid var(--line-soft); background: var(--surface-2); font-size: 12.5px; line-height: 1.55; color: var(--ink-2); }
+.sinir-info .icon { width: 18px; height: 18px; flex: none; margin-top: 1px; color: var(--muted); }
+.sinir-info strong { color: var(--ink); font-weight: 600; }
+.sinir-info[data-state="cizildi"] { background: #eef8f1; border-color: #c9e6d3; }
+.sinir-info[data-state="cizildi"] .icon { color: var(--brand); }
+
+/* Ayarlar > Genel Değerlendirme soru yönetimi */
+.gdq-liste { display: flex; flex-direction: column; gap: 10px; }
+.gdq-kart { border: 1px solid var(--line); border-radius: var(--radius-m); padding: 14px 16px; background: #fff; }
+.gdq-kart-ust { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.gdq-kart-aksiyon { display: flex; align-items: center; gap: 6px; flex: none; }
+.gdq-soru { font-size: 13.5px; font-weight: 600; margin-bottom: 6px; }
+.gdq-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+.gdq-chip { display: inline-flex; font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; color: var(--brand); background: var(--brand-tint); border-radius: 999px; padding: 3px 9px; }
+.gdq-chip-soft { color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line-soft); }
+.gdq-secenekler { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.gdq-secenek { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px; color: var(--ink-2); }
+.gdq-atanan { font-size: 11.5px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+.gdq-form { display: flex; flex-direction: column; gap: 16px; }
+.gdq-form .field textarea { border: 1px solid var(--line); border-radius: var(--radius-s); padding: 9px 12px; font-size: 13px; font-family: inherit; resize: vertical; }
+.gdq-form .field textarea:focus { border-color: var(--brand); outline: none; }
+.gdq-tip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.gdq-tip { position: relative; display: flex; flex-direction: column; gap: 3px; border: 1px solid var(--line); border-radius: var(--radius-m); padding: 10px 12px 10px 34px; cursor: pointer; }
+.gdq-tip input { position: absolute; left: 12px; top: 12px; margin: 0; }
+.gdq-tip[data-aktif="true"] { border-color: var(--brand); background: var(--brand-tint); }
+.gdq-tip-ad { font-size: 12.5px; font-weight: 700; }
+.gdq-tip-ack { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.gdq-atama { display: flex; flex-direction: column; gap: 6px; }
+.gdq-radio { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.gdq-parsel-list { margin-top: 10px; border: 1px solid var(--line-soft); background: var(--surface-2); border-radius: var(--radius-m); padding: 10px 14px; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.gdq-parsel-musteri { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin-bottom: 4px; }
+.gdq-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.gdq-hata { font-size: 12.5px; color: #b42318; margin: 0; }
+@media (max-width: 760px) { .gdq-tip-grid { grid-template-columns: 1fr; } .gdq-kart-ust { flex-direction: column; } }
+
+/* Parsel sayfası — seçmeli cevap + sihirbaz önizleme */
+.gd-secenekler { display: flex; flex-wrap: wrap; gap: 8px; }
+.gd-secenek { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12.5px; cursor: pointer; }
+.gd-secenek:has(input:checked) { border-color: var(--brand); background: var(--brand-tint); color: var(--brand); font-weight: 600; }

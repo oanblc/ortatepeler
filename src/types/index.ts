@@ -250,9 +250,17 @@ export interface SulamaPlani {
 // Genel Değerlendirme sorusu — Ayarlar'da sadece yönetici tarafından
 // yönetilir (ekle/düzenle/sil). recordTypes'tan farklı olarak salt okunur
 // DEĞİL, ama customerId/parcelId'ye bağlı da değil: global bir koleksiyon.
+export type DegerlendirmeSoruTipi = "puan" | "secmeli" | "metin";
+
 export interface DegerlendirmeSorusu {
   id: string;
   soru: string;
+  /** Eski kayıtlarda yok → "puan" (1-5 yıldız) sayılır. */
+  tip?: DegerlendirmeSoruTipi;
+  /** Sadece tip === "secmeli" için: tek seçimlik seçenekler. */
+  secenekler?: string[];
+  /** Soruyu alacak parseller. Boş/yok → tüm parseller. */
+  parselIds?: string[];
   siraNo: number;
   createdAt: string;
 }
@@ -312,6 +320,6 @@ export interface ParselDegerlendirmesi {
   customerId: string;
   parcelId: string;
   yil: string; // "2026" gibi
-  cevaplar: { soruId: string; puan: number; not?: string }[];
+  cevaplar: { soruId: string; puan: number; not?: string; secim?: string; metin?: string }[];
   createdAt: string;
 }

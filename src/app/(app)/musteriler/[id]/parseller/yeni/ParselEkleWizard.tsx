@@ -2,23 +2,22 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createParcelAction, createWellAction } from "@/lib/actions";
+import { createParcelAction } from "@/lib/actions";
 import { ParcelBoundaryPicker } from "@/components/map/ParcelBoundaryPicker";
 import { Icon } from "@/components/IconSprite";
 import { UrunRows } from "@/components/UrunRows";
 import { SULAMA_SEKILLERI, hesaplaAgacSayisi } from "@/lib/parcelForm";
-import type { Customer, Well, LatLng, ParcelUrun } from "@/types";
+import type { Customer, LatLng, ParcelUrun } from "@/types";
 
 const ADIMLAR = [
   "Temel Bilgiler",
   "Ürün & Çeşit",
   "Sulama",
   "Ağaç Bilgisi",
-  "Genel Değerlendirme",
   "Özet",
 ];
 
-export function ParselEkleWizard({ customer, kuyular }: { customer: Customer; kuyular: Well[] }) {
+export function ParselEkleWizard({ customer }: { customer: Customer }) {
   const [step, setStep] = useState(1);
   const [maxStep, setMaxStep] = useState(1);
 
@@ -33,12 +32,6 @@ export function ParselEkleWizard({ customer, kuyular }: { customer: Customer; ku
 
   // Adım 3 — Sulama
   const [sulamaSekli, setSulamaSekli] = useState("");
-  const [sulamaDetay, setSulamaDetay] = useState("");
-  const [kuyuIds, setKuyuIds] = useState<string[]>([]);
-  const [kuyularListesi, setKuyularListesi] = useState<Well[]>(kuyular);
-  const [kuyuFormAcik, setKuyuFormAcik] = useState(false);
-  const [yeniKuyuAdi, setYeniKuyuAdi] = useState("");
-  const [kuyuEkleniyor, setKuyuEkleniyor] = useState(false);
 
   // Adım 4 — Ağaç Bilgisi
   const [siraArasi, setSiraArasi] = useState("");
@@ -51,7 +44,7 @@ export function ParselEkleWizard({ customer, kuyular }: { customer: Customer; ku
   }
 
   function ileri() {
-    const hedef = Math.min(6, step + 1);
+    const hedef = Math.min(5, step + 1);
     setStep(hedef);
     setMaxStep((m) => Math.max(m, hedef));
   }
@@ -64,23 +57,6 @@ export function ParselEkleWizard({ customer, kuyular }: { customer: Customer; ku
     setSinir(yeniSinir);
     setAlanDonum(yeniAlan);
     setHaritaTamam(true);
-  }
-
-  async function kuyuEkle() {
-    const isim = yeniKuyuAdi.trim();
-    if (!isim) return;
-    setKuyuEkleniyor(true);
-    try {
-      const fd = new FormData();
-      fd.set("ad", isim);
-      const yeniKuyu = await createWellAction(customer.id, fd);
-      setKuyularListesi((prev) => [...prev, yeniKuyu]);
-      setKuyuIds((prev) => [...prev, yeniKuyu.id]);
-      setYeniKuyuAdi("");
-      setKuyuFormAcik(false);
-    } finally {
-      setKuyuEkleniyor(false);
-    }
   }
 
   function hesaplaAgac(arasiStr: string, uzeriStr: string) {
@@ -98,17 +74,15 @@ export function ParselEkleWizard({ customer, kuyular }: { customer: Customer; ku
   }
 
   const gecerliUrunler = urunler.filter((u) => u.urun.trim());
-  const secilenKuyular = kuyularListesi.filter((k) => kuyuIds.includes(k.id));
 
-  const step1Tamam = haritaTamam && ad.trim().length > 0;
+  const step1Tamam = ad.trim().length > 0;
   const step2Tamam = gecerliUrunler.length > 0;
 
   const ilerleyebilir =
     (step === 1 && step1Tamam) ||
     (step === 2 && step2Tamam) ||
     step === 3 ||
-    step === 4 ||
-    step === 5;
+    step === 4;
 
   const boundParcelAction = createParcelAction.bind(null, customer.id);
 
@@ -135,30 +109,57 @@ export function ParselEkleWizard({ customer, kuyular }: { customer: Customer; ku
             {step === 1 && (
               <section className="wizard-section">
                 <h2>Temel Bilgiler</h2>
-                <p className="wizard-hint">Önce parsel sınırını haritadan çizin — alan otomatik hesaplanır.</p>
+                <p className="wizard-hint">Parsel sınırını haritadan çizebilirsiniz — alan otomatik hesaplanır. Çizmeden de devam edebilirsiniz.</p>
                 <div className="map-shell">
                   <ParcelBoundaryPicker initialSinir={sinir ?? undefined} onDevamEt={haritaDevamEt} />
                 </div>
-                {haritaTamam && (
-                  <div className="calc-box">
-                    <div className="field">
-                      <label htmlFor="parsel-ad">
-                        Parsel Adı <span className="req">*</span>
-                      </label>
-                      <input
-                        id="parsel-ad"
-                        value={ad}
-                        onChange={(e) => setAd(e.target.value)}
-                        placeholder="Örn. Kuzey Parseli"
-                        required
-                      />
-                    </div>
-                    <div className="field">
-                      <label htmlFor="parsel-alan">Alan (dönüm)</label>
-                      <input id="parsel-alan" value={`${alanDonum} dönüm`} readOnly disabled />
-                    </div>
+                <div className="sinir-info" data-state={haritaTamam ? "cizildi" : "cizilmedi"}>
+                  <Icon name={haritaTamam ? "check" : "map"} />
+                  <div>
+                    {haritaTamam ? (
+                      <>
+                        <strong>Sınır çizildi.</strong> Alan haritadan otomatik hesaplandı; parsel haritada görünür, toprak nemi
+                        eşleştirmesi ve ısı günlüğü kayıttan sonra otomatik başlar.
+                      </>
+                    ) : (
+                      <>
+                        <strong>Sınır çizmeden de devam edebilirsiniz.</strong> Bu durumda alanı elle girersiniz; parsel haritada
+                        görünmez, toprak nemi eşleştirmesi ve ısı günlüğü çalışmaz. Sınırı daha sonra parsel sayfasından
+                        çizebilirsiniz, bu özellikler o zaman devreye girer.
+                      </>
+                    )}
                   </div>
-                )}
+                </div>
+                <div className="calc-box">
+                  <div className="field">
+                    <label htmlFor="parsel-ad">
+                      Parsel Adı <span className="req">*</span>
+                    </label>
+                    <input
+                      id="parsel-ad"
+                      value={ad}
+                      onChange={(e) => setAd(e.target.value)}
+                      placeholder="Örn. Kuzey Parseli"
+                      required
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="parsel-alan">Alan (dönüm)</label>
+                    {haritaTamam ? (
+                      <input id="parsel-alan" value={`${alanDonum} dönüm`} readOnly disabled />
+                    ) : (
+                      <input
+                        id="parsel-alan"
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={alanDonum || ""}
+                        onChange={(e) => setAlanDonum(Math.max(0, Number(e.target.value) || 0))}
+                        placeholder="Biliyorsanız girin"
+                      />
+                    )}
+                  </div>
+                </div>
               </section>
             )}
 
@@ -183,62 +184,6 @@ export function ParselEkleWizard({ customer, kuyular }: { customer: Customer; ku
                       </option>
                     ))}
                   </select>
-                </div>
-                <div className="field">
-                  <label htmlFor="sulama-detay">Sulama Şekli Detay</label>
-                  <input
-                    id="sulama-detay"
-                    value={sulamaDetay}
-                    onChange={(e) => setSulamaDetay(e.target.value)}
-                    placeholder="Örn. Haftada 2 gün, gece sulaması"
-                  />
-                </div>
-                <div className="field">
-                  <label>Sulama Kuyusu</label>
-                  <p className="wizard-hint">Bir parsel birden fazla kuyudan sulanabilir, istediğiniz kadar seçin.</p>
-                  <div className="kuyu-secim-list">
-                    {kuyularListesi.length === 0 ? (
-                      <p className="well-empty-note">Henüz kuyu eklenmedi.</p>
-                    ) : (
-                      kuyularListesi.map((k) => (
-                        <label key={k.id} className="kuyu-secim-row">
-                          <input
-                            type="checkbox"
-                            checked={kuyuIds.includes(k.id)}
-                            onChange={(e) =>
-                              setKuyuIds((prev) =>
-                                e.target.checked ? Array.from(new Set([...prev, k.id])) : prev.filter((id) => id !== k.id),
-                              )
-                            }
-                          />
-                          <span>{k.ad}</span>
-                        </label>
-                      ))
-                    )}
-                  </div>
-                  <div className="kuyu-row">
-                    <button type="button" className="btn" onClick={() => setKuyuFormAcik((v) => !v)}>
-                      <Icon name="plus" />
-                      Yeni kuyu ekle
-                    </button>
-                  </div>
-                  {kuyuFormAcik && (
-                    <div className="kuyu-inline-form">
-                      <input
-                        value={yeniKuyuAdi}
-                        onChange={(e) => setYeniKuyuAdi(e.target.value)}
-                        placeholder="Kuyu adı, örn. Doğu Kuyusu"
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={kuyuEkle}
-                        disabled={kuyuEkleniyor || !yeniKuyuAdi.trim()}
-                      >
-                        {kuyuEkleniyor ? "Ekleniyor..." : "Ekle"}
-                      </button>
-                    </div>
-                  )}
                 </div>
               </section>
             )}
@@ -291,16 +236,6 @@ export function ParselEkleWizard({ customer, kuyular }: { customer: Customer; ku
 
             {step === 5 && (
               <section className="wizard-section">
-                <h2>Genel Değerlendirme</h2>
-                <div className="empty-state">
-                  <Icon name="clipboard" />
-                  <p>7 soru henüz tanımlanmadı, daha sonra eklenecek.</p>
-                </div>
-              </section>
-            )}
-
-            {step === 6 && (
-              <section className="wizard-section">
                 <h2>Özet</h2>
                 <div className="summary-section">
                   <div className="summary-head">
@@ -351,18 +286,6 @@ export function ParselEkleWizard({ customer, kuyular }: { customer: Customer; ku
                     <span className="k">Sulama Şekli</span>
                     <span className="v">{sulamaSekli || "Belirtilmedi"}</span>
                   </div>
-                  {sulamaDetay && (
-                    <div className="summary-row">
-                      <span className="k">Detay</span>
-                      <span className="v">{sulamaDetay}</span>
-                    </div>
-                  )}
-                  <div className="summary-row">
-                    <span className="k">Kuyu</span>
-                    <span className="v">
-                      {secilenKuyular.length > 0 ? secilenKuyular.map((k) => k.ad).join(", ") : "Seçilmedi"}
-                    </span>
-                  </div>
                 </div>
 
                 <div className="summary-section">
@@ -390,8 +313,6 @@ export function ParselEkleWizard({ customer, kuyular }: { customer: Customer; ku
                   <input type="hidden" name="sinir" value={sinir ? JSON.stringify(sinir) : ""} readOnly />
                   <input type="hidden" name="urunler" value={JSON.stringify(gecerliUrunler)} readOnly />
                   <input type="hidden" name="sulamaSekli" value={sulamaSekli} readOnly />
-                  <input type="hidden" name="sulamaDetay" value={sulamaDetay} readOnly />
-                  <input type="hidden" name="kuyuIds" value={JSON.stringify(kuyuIds)} readOnly />
                   <input type="hidden" name="siraArasi" value={siraArasi} readOnly />
                   <input type="hidden" name="siraUzeri" value={siraUzeri} readOnly />
                   <input type="hidden" name="agacSayisi" value={agacSayisi} readOnly />
@@ -408,7 +329,7 @@ export function ParselEkleWizard({ customer, kuyular }: { customer: Customer; ku
             )}
           </div>
 
-          {step !== 6 && (
+          {step !== 5 && (
             <div className="wizard-actions">
               <button type="button" className="btn" onClick={geri} disabled={step === 1}>
                 ← Geri

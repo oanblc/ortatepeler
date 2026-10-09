@@ -1,3 +1,4 @@
+import { soruParselIcinGecerli } from "@/lib/degerlendirme";
 import { notFound } from "next/navigation";
 import {
   customers,
@@ -103,7 +104,7 @@ export default async function ParselDetayPage(props: PageProps<"/musteriler/[id]
           havaVerisi={havaVerisi}
           sahaKayitlari={sahaKayitlari}
           recordTypes={tipler}
-          degerlendirmeSorulari={degerlendirmeSorulari}
+          degerlendirmeSorulari={degerlendirmeSorulari.filter((s) => soruParselIcinGecerli(s, parcel.id))}
           mevcutDegerlendirme={mevcutDegerlendirme}
           degerlendirmeYili={secilenYil}
           degerlendirmeYillari={gorunecekYillar}

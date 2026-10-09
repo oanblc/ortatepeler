@@ -1,12 +1,10 @@
+import Link from "next/link";
 import { recordTypes, degerlendirmeSorulari, hastalikTanimlari } from "@/lib/repositories";
 import { requireUser } from "@/lib/session";
 import { Topbar } from "@/components/Topbar";
 import { Icon } from "@/components/IconSprite";
 import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import {
-  createDegerlendirmeSorusuAction,
-  updateDegerlendirmeSorusuAction,
-  deleteDegerlendirmeSorusuAction,
   createHastalikTanimiAction,
   deleteHastalikTanimiAction,
 } from "@/lib/actions";
@@ -56,45 +54,16 @@ export default async function AyarlarPage() {
           <div className="card ayarlar-card">
             <div className="card-head">
               <h3>
-                Genel Değerlendirme Soruları<span className="admin-tag">Yönetici</span>
+                Genel Değerlendirme<span className="admin-tag">Yönetici</span>
               </h3>
+              <Link href="/ayarlar/genel-degerlendirme" className="btn btn-primary">
+                Soruları Yönet
+              </Link>
             </div>
             <p className="card-desc">
-              Parsel sayfasındaki, yılda bir doldurulan Genel Değerlendirme&apos;de sorulacak sorular (1-5 yıldız +
-              not).
+              Parsellerde yılda bir doldurulan değerlendirme soruları: seçmeli, doldurmalı veya 1-5 puanlı sorular
+              tanımlayın ve parsellere atayın. Şu an {sorular.length} soru tanımlı.
             </p>
-
-            {sorular.length === 0 && <p className="card-desc">Henüz soru eklenmedi.</p>}
-
-            {sorular.map((soru) => (
-              <div className="soru-row" key={soru.id}>
-                <form action={updateDegerlendirmeSorusuAction.bind(null, soru.id)} className="soru-row-form">
-                  <input name="soru" defaultValue={soru.soru} required />
-                  <button type="submit" className="btn">
-                    Kaydet
-                  </button>
-                </form>
-                <ConfirmDeleteButton
-                  action={deleteDegerlendirmeSorusuAction.bind(null, soru.id)}
-                  label="Sil"
-                  basariliMesaj={`"${soru.soru}" sorusu silindi.`}
-                  message={
-                    <>
-                      &quot;<strong>{soru.soru}</strong>&quot; sorusunu silmek istediğinize emin misiniz? Bu soruya
-                      verilmiş geçmiş cevaplar da görünmez olur.
-                    </>
-                  }
-                />
-              </div>
-            ))}
-
-            <form action={createDegerlendirmeSorusuAction} className="soru-ekle-form">
-              <input name="soru" required placeholder="Örn. Sulama planına ne kadar uyduk?" />
-              <button type="submit" className="btn btn-primary">
-                <Icon name="plus" className="icon" />
-                Soru Ekle
-              </button>
-            </form>
           </div>
         )}
 
