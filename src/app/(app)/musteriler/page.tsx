@@ -78,10 +78,16 @@ export default async function MusterilerPage(props: PageProps<"/musteriler">) {
 
         <div className="content-head">
           <AramaKutusu baslangic={q} />
-          <Link href="/musteriler/yeni" className="btn btn-primary">
-            <Icon name="plus" />
-            Yeni Müşteri
-          </Link>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link href="/musteriler/ice-aktar" className="btn">
+              <Icon name="download" />
+              Excel ile İçe Aktar
+            </Link>
+            <Link href="/musteriler/yeni" className="btn btn-primary">
+              <Icon name="plus" />
+              Yeni Müşteri
+            </Link>
+          </div>
         </div>
 
         {sayfaListesi.length === 0 ? (

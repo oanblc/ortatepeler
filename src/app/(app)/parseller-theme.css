@@ -1155,3 +1155,19 @@ table.gg-table { width: 100%; border-collapse: collapse; }
 a.app-empty { display: block; text-decoration: none; color: inherit; cursor: pointer; }
 a.app-empty:hover { border-color: var(--brand); background: var(--brand-tint); }
 a.app-empty p { color: var(--brand); font-weight: 600; }
+
+/* Müşteri Excel içe aktarma */
+.ia-sayfa { display: flex; flex-direction: column; gap: 16px; }
+.ia-dosya-satiri { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ia-dosya-satiri input[type="file"] { font-size: 13px; }
+.ia-ozet { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 10px; }
+.ia-hatali-chip { display: inline-flex; font-size: 10.5px; font-weight: 700; color: #b42318; background: #fef3f2; border: 1px solid #fecdca; border-radius: 999px; padding: 3px 9px; }
+.ia-tablo { max-height: 420px; overflow-y: auto; border: 1px solid var(--line-soft); border-radius: var(--radius-m); }
+.ia-tablo tr[data-durum="atlanacak"] td { color: var(--muted); }
+.ia-tablo tr[data-durum="hatali"] td { background: #fffafa; }
+.ia-durum { font-size: 11.5px; font-weight: 700; }
+.ia-durum[data-durum="eklenecek"] { color: #1b6b3a; }
+.ia-durum[data-durum="atlanacak"] { color: #8a5a00; }
+.ia-durum[data-durum="hatali"] { color: #b42318; }
+.ia-mesaj { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.ia-baslik { font-size: 13px; font-weight: 700; margin: 18px 0 0; }
