@@ -191,3 +191,48 @@ export async function sendReportEmail(to: string | string[], raporAdi: string, p
     attachments: [pdf],
   });
 }
+
+// "Ozana Havale Et" ile yeni bir revize kaydedilince yöneticiye bildirim.
+// Alıcı REVIZE_BILDIRIM_EPOSTA (virgülle birden fazla), boşsa varsayılan adres.
+export async function sendRevizeBildirimEmail(revize: {
+  sayfaAdi: string;
+  sayfaYolu: string;
+  aciklama: string;
+  olusturanAd: string;
+  createdAt: string;
+  baseUrl: string;
+}) {
+  const to = (process.env.REVIZE_BILDIRIM_EPOSTA ?? "ozanbalcioglu@gmail.com")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (to.length === 0) return;
+
+  const tarih = new Date(revize.createdAt).toLocaleString("tr-TR", {
+    timeZone: "Europe/Istanbul",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const satir = (label: string, value: string) =>
+    `<tr><td style="padding:8px 0;border-top:1px solid #e4e8db;font:700 12px/1.4 Arial,Helvetica,sans-serif;color:#848c76;width:110px;vertical-align:top;">${escapeHtml(label)}</td><td style="padding:8px 0;border-top:1px solid #e4e8db;font:400 14px/1.5 Arial,Helvetica,sans-serif;color:#171e17;">${escapeHtml(value)}</td></tr>`;
+
+  await sendEmail({
+    to,
+    subject: `Yeni revize — ${revize.sayfaAdi}`,
+    html: emailLayout({
+      eyebrow: "Ozana Havale Et",
+      heading: "Panelde yeni bir revize verildi",
+      bodyHtml: `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:4px;">
+        ${satir("Sayfa", revize.sayfaAdi)}
+        ${satir("Kim", revize.olusturanAd)}
+        ${satir("Ne zaman", tarih)}
+      </table>
+      <p style="margin:18px 0 0;font:700 12px/1.4 Arial,Helvetica,sans-serif;color:#848c76;text-transform:uppercase;letter-spacing:0.04em;">Revize</p>
+      <p style="margin:8px 0 0;white-space:pre-wrap;">${escapeHtml(revize.aciklama)}</p>`,
+      cta: { label: "Revizeler Sayfasını Aç", href: `${revize.baseUrl}/revizeler` },
+    }),
+  });
+}

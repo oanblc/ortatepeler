@@ -1,6 +1,8 @@
 "use server";
 
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { sendRevizeBildirimEmail } from "./email";
 import { revizeler } from "./repositories";
 import { requireUser } from "./session";
 import { sayfaAdiBul } from "./yardimBilgisi";
@@ -17,7 +19,7 @@ export async function revizeKaydetAction(sayfaYolu: string, aciklama: string) {
   const metin = aciklama.trim().slice(0, 4000);
   if (!metin) throw new Error("Revize açıklaması boş olamaz.");
   const yol = yolTemizle(sayfaYolu);
-  await revizeler.create({
+  const kayit = await revizeler.create({
     sayfaYolu: yol,
     sayfaAdi: sayfaAdiBul(yol),
     aciklama: metin,
@@ -25,6 +27,15 @@ export async function revizeKaydetAction(sayfaYolu: string, aciklama: string) {
     olusturanAd: user.ad,
   });
   revalidatePath("/revizeler");
+
+  // E-posta bildirimi — başarısız olsa bile revize zaten kaydedildi, kullanıcıya hata yansımaz.
+  try {
+    const h = await headers();
+    const baseUrl = process.env.APP_URL ?? `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`;
+    await sendRevizeBildirimEmail({ ...kayit, baseUrl });
+  } catch (err) {
+    console.error("Revize bildirim e-postası gönderilemedi:", err);
+  }
 }
 
 export async function revizeDurumAction(id: string, durum: RevizeDurumu) {
