@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@/components/IconSprite";
 import { useNotifications } from "@/components/NotificationsProvider";
 import { createGelirGiderKaydiAction } from "@/lib/actions";
+import { gorselKucult } from "@/lib/gorselKucult";
 import type { Customer, GelirGiderTur } from "@/types";
 
 export function YeniGelirGiderForm({ musteriler, kategoriler }: { musteriler: Customer[]; kategoriler: string[] }) {
@@ -21,6 +22,8 @@ export function YeniGelirGiderForm({ musteriler, kategoriler }: { musteriler: Cu
   const [aciklama, setAciklama] = useState("");
   const [fisler, setFisler] = useState<File[]>([]);
   const [kaydediliyor, setKaydediliyor] = useState(false);
+  const [hata, setHata] = useState<string | null>(null);
+  const [fisIsleniyor, setFisIsleniyor] = useState(false);
   const fisInputRef = useRef<HTMLInputElement>(null);
 
   // Fiş önizlemeleri — CustomerDetailTabs.tsx'teki Ziyaret Kaydı fotoğraf
@@ -33,13 +36,19 @@ export function YeniGelirGiderForm({ musteriler, kategoriler }: { musteriler: Cu
     };
   }, [fisOnizlemeUrls]);
 
-  function fisSecildi(e: React.ChangeEvent<HTMLInputElement>) {
+  async function fisSecildi(e: React.ChangeEvent<HTMLInputElement>) {
     const secilenler = Array.from(e.target.files ?? []);
-    if (secilenler.length > 0) {
-      setFisler((onceki) => [...onceki, ...secilenler]);
-    }
     // Aynı dosya tekrar seçilebilsin diye input sıfırlanır.
     e.target.value = "";
+    if (secilenler.length === 0) return;
+    // Telefon fotoğrafları büyük olur — yüklemeden önce küçültülür (bkz. gorselKucult.ts).
+    setFisIsleniyor(true);
+    try {
+      const kucultulenler = await Promise.all(secilenler.map((d) => gorselKucult(d)));
+      setFisler((onceki) => [...onceki, ...kucultulenler]);
+    } finally {
+      setFisIsleniyor(false);
+    }
   }
 
   function fisKaldir(index: number) {
@@ -49,6 +58,7 @@ export function YeniGelirGiderForm({ musteriler, kategoriler }: { musteriler: Cu
   async function kaydet() {
     if (!tarih || !kategori.trim() || !tutar) return;
     setKaydediliyor(true);
+    setHata(null);
     try {
       const fd = new FormData();
       fd.set("tur", tur);
@@ -62,6 +72,10 @@ export function YeniGelirGiderForm({ musteriler, kategoriler }: { musteriler: Cu
       await createGelirGiderKaydiAction(fd);
       addNotification("Gelir/gider kaydı eklendi.");
       router.push("/gelir-gider");
+    } catch (err) {
+      // Kayıt başarısızsa form olduğu gibi kalır; eskiden hata sessizce yutuluyordu.
+      console.error("Gelir/gider kaydı kaydedilemedi:", err);
+      setHata("Kayıt yapılamadı. Bağlantınızı kontrol edip tekrar deneyin; girdiğiniz bilgiler korundu.");
     } finally {
       setKaydediliyor(false);
     }
@@ -157,6 +171,12 @@ export function YeniGelirGiderForm({ musteriler, kategoriler }: { musteriler: Cu
         <div className="foto-hint">Fiş/fatura fotoğrafını kaydın kanıtı olarak eklemek için.</div>
       </div>
 
+      {hata && (
+        <p role="alert" className="zk-hata">
+          {hata}
+        </p>
+      )}
+
       <div className="form-actions">
         <button type="button" className="btn" onClick={() => router.push("/gelir-gider")}>
           Vazgeç
@@ -165,9 +185,9 @@ export function YeniGelirGiderForm({ musteriler, kategoriler }: { musteriler: Cu
           type="button"
           className={`btn ${tur === "gider" ? "btn-gider-vurgu" : "btn-primary"}`}
           onClick={kaydet}
-          disabled={kaydediliyor || !tarih || !kategori.trim() || !tutar}
+          disabled={kaydediliyor || fisIsleniyor || !tarih || !kategori.trim() || !tutar}
         >
-          {kaydediliyor ? "Kaydediliyor..." : "Kaydet"}
+          {kaydediliyor ? "Kaydediliyor..." : fisIsleniyor ? "Fotoğraf hazırlanıyor..." : "Kaydet"}
         </button>
       </div>
     </div>

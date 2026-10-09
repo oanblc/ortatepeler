@@ -38,18 +38,18 @@ export function RevizePaneli() {
 
   if (!acik) {
     return (
-      <button type="button" className="yb-fab" onClick={() => { setAcik(true); setKaydedildi(false); }} aria-label="Revize ver">
+      <button type="button" className="yb-fab" onClick={() => { setAcik(true); setKaydedildi(false); }} aria-label="Ozana havale et">
         <Icon name="edit" />
-        <span>Revize</span>
+        <span>Ozana Havale Et</span>
       </button>
     );
   }
 
   return (
-    <section className="yb-panel" aria-label="Revize ver">
+    <section className="yb-panel" aria-label="Ozana havale et">
       <header className="yb-head">
         <div>
-          <div className="yb-title">Revize ver</div>
+          <div className="yb-title">Ozana havale et</div>
           <div className="yb-sub">Şu an: {sayfaAdi}</div>
         </div>
         <button type="button" className="yb-close" onClick={() => setAcik(false)} aria-label="Kapat">

@@ -49,8 +49,8 @@ export default async function RevizelerPage(props: PageProps<"/revizeler">) {
             <h3>Sayfa bazlı revize listesi</h3>
           </div>
           <p className="card-desc">
-            Sağ alttaki Revize butonundan verilen değişiklik talepleri burada, ait oldukları sayfaya göre toplanır.
-            Revize vermek için ilgili sayfadayken Revize butonuna basıp isteğinizi yazın.
+            Sağ alttaki Ozana Havale Et butonundan verilen değişiklik talepleri burada, ait oldukları sayfaya göre toplanır.
+            Revize vermek için ilgili sayfadayken Ozana Havale Et butonuna basıp isteğinizi yazın.
           </p>
           <div className="rv-filtreler">
             {FILTRELER.map((f) => (
