@@ -711,7 +711,33 @@ export async function createZiyaretKaydiAction(customerId: string, formData: For
     throw new Error("Kayıt tipi bulunamadı — Ayarlar'ı kontrol edin.");
   }
 
+  // Saha (PWA) düzenleme modunda form, kayıttaki fotoğraflardan hangilerinin KALACAĞINI açıkça
+  // gönderir (mevcutGorselMarker=1 + mevcutGorseller). Marker yoksa (web formu, tarihi eski bir gün)
+  // mevcut fotoğrafların hiçbiri sessizce silinmez — sadece yenileri eklenir.
+  const gorselListesiBelirtildi = formData.get("mevcutGorselMarker") === "1";
+  const istenenMevcutGorseller = formData.getAll("mevcutGorseller").map(String);
+
   for (const parcelId of parcelIds) {
+    // Seçili GÜN için bu parselde zaten var olan aynı tip kaydı bulur — varsa
+    // günceller, yoksa yeni kayıt oluşturur (aynı gün için tekrar ziyaret
+    // kaydı girilirse satır çoğalmasın diye).
+    const mevcutKayitlar = await records.list(customerId, parcelId);
+    const mevcutKaydiBul = (recordTypeId: string) =>
+      mevcutKayitlar.find((r) => r.recordTypeId === recordTypeId && r.tarih === tarih);
+
+    const ziyaretTipleri = [ilacTuru?.id, gozlemTuru.id];
+    const mevcutZiyaretGorselleri = Array.from(
+      new Set(
+        mevcutKayitlar
+          .filter((r) => r.tarih === tarih && ziyaretTipleri.includes(r.recordTypeId))
+          .flatMap((r) => r.gorseller ?? []),
+      ),
+    );
+    const korunanGorseller = gorselListesiBelirtildi
+      ? istenenMevcutGorseller.filter((g) => mevcutZiyaretGorselleri.includes(g)) // sadece bu ziyarete ait olanlar kabul edilir
+      : mevcutZiyaretGorselleri;
+    const tumGorseller = Array.from(new Set([...korunanGorseller, ...gorseller]));
+
     const ortakAlanlar = {
       tarih,
       not: aciklama || undefined,
@@ -719,15 +745,8 @@ export async function createZiyaretKaydiAction(customerId: string, formData: For
       durum: durum || undefined,
       oncelikPuani,
       hastaliklar: hastaliklar.length ? hastaliklar : undefined,
-      gorseller: gorseller.length ? gorseller : undefined,
+      gorseller: tumGorseller.length ? tumGorseller : undefined,
     };
-
-    // Seçili GÜN için bu parselde zaten var olan aynı tip kaydı bulur — varsa
-    // günceller, yoksa yeni kayıt oluşturur (aynı gün için tekrar ziyaret
-    // kaydı girilirse satır çoğalmasın diye).
-    const mevcutKayitlar = await records.list(customerId, parcelId);
-    const mevcutKaydiBul = (recordTypeId: string) =>
-      mevcutKayitlar.find((r) => r.recordTypeId === recordTypeId && r.tarih === tarih);
 
     let herhangiBirTipYazildi = false;
 
@@ -737,6 +756,10 @@ export async function createZiyaretKaydiAction(customerId: string, formData: For
       if (mevcut) await records.update(customerId, parcelId, mevcut.id, { ...ortakAlanlar, values });
       else await records.create(customerId, parcelId, { recordTypeId: ilacTuru.id, muhendisId: user.id, values, ...ortakAlanlar });
       herhangiBirTipYazildi = true;
+    } else if (gorselListesiBelirtildi && ilacTuru) {
+      // Düzenleme modunda reçete boşaltıldıysa eski İlaçlama kaydı kalmasın (yoksa form tekrar açılınca eski reçete geri gelir).
+      const eskiIlac = mevcutKaydiBul(ilacTuru.id);
+      if (eskiIlac) await records.remove(customerId, eskiIlac.id);
     }
 
     // Hiçbir uygulama girilmemişse (sadece açıklama/fotoğraf varsa) düz bir

@@ -57,3 +57,19 @@ html, body { background: var(--sh-bg); }
 .sh-etiketler { display: flex; flex-wrap: wrap; gap: 8px; max-height: 30vh; overflow-y: auto; padding: 2px; }
 .sh-etiket { padding: 10px 14px; min-height: 44px; border: 1.5px solid var(--sh-line); border-radius: 999px; background: var(--sh-surface); font: inherit; font-size: 14px; color: var(--sh-ink); }
 .sh-etiket[data-secili="true"] { border-color: #c0392b; background: #fdf0ec; color: #8a2a1a; font-weight: 600; }
+.sh-oncelik { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.sh-oncelik button { min-height: 46px; border: 1.5px solid var(--sh-line); border-radius: 12px; background: var(--sh-surface); font: inherit; font-size: 16px; font-weight: 600; color: var(--sh-ink); }
+.sh-oncelik button[data-secili="true"] { background: var(--sh-brand); border-color: var(--sh-brand); color: #fff; }
+.sh-ipucu { font-size: 12px; color: var(--sh-muted); line-height: 1.4; }
+.sh-duzenleme { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 14px; background: #fff6e5; border: 1px solid #f1d9a4; color: #6b4a00; font-size: 14px; }
+.sh-duzenleme div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sh-duzenleme strong { font-size: 15px; }
+.sh-duzenleme button { flex: none; padding: 10px 16px; border-radius: 10px; border: 1px solid #e3c47a; background: #fff; font: inherit; font-weight: 600; font-size: 14px; color: #6b4a00; }
+.sh-uyari { margin: 0; padding: 12px 14px; border-radius: 12px; background: #fff6e5; border: 1px solid #f1d9a4; color: #6b4a00; font-size: 13.5px; line-height: 1.5; }
+.sh-kayit-var { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: #fff0cc; border: 1px solid #f1d9a4; color: #8a5a00; font-style: normal; font-size: 11px; font-weight: 700; vertical-align: middle; }
+.sh-son-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.sh-son-liste button { width: 100%; display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 12px 14px; border: 1px solid var(--sh-line); border-radius: 12px; background: var(--sh-surface); font: inherit; color: inherit; }
+.sh-son-ust { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+.sh-son-ust span { color: var(--sh-muted); font-size: 12.5px; }
+.sh-son-alt { font-size: 13px; color: #4b5545; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.sh-son-duzenle { align-self: flex-end; font-size: 12.5px; font-weight: 600; color: var(--sh-brand); }
