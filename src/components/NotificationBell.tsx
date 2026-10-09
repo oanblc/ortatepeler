@@ -20,6 +20,8 @@ function goreliZaman(iso: string) {
 export function NotificationBell() {
   const { notifications, unreadCount, markAllRead } = useNotifications();
   const [open, setOpen] = useState(false);
+  // Dışarı tıklama dinleyicisi tek sefer kurulduğu için açık/kapalı bilgisini ref'ten okur.
+  const openRef = useRef(false);
   // Provider'daki bildirim listesi client'ta localStorage'dan senkron okunuyor,
   // ama sunucu her zaman boş liste ile render eder — kırmızı noktayı hydration
   // tamamlanana kadar gizleyip uyuşmazlık uyarısı/çakışması olmasını önlüyoruz.
@@ -50,16 +52,19 @@ export function NotificationBell() {
   }, []);
 
   function ac() {
+    openRef.current = true;
     const rect = btnRef.current?.getBoundingClientRect();
     if (rect) setPanelPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
     setOpen(true);
   }
 
   function kapat() {
-    setOpen((wasOpen) => {
-      if (wasOpen) markAllRead();
-      return false;
-    });
+    // markAllRead provider'ın state'ini günceller — setOpen'ın updater'ı içinde değil,
+    // doğrudan çağrılmalı (updater render sırasında çalışır → "Cannot update a
+    // component while rendering a different component" hatası).
+    if (openRef.current) markAllRead();
+    openRef.current = false;
+    setOpen(false);
   }
 
   function toggle() {
