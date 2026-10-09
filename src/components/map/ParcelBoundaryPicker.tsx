@@ -122,7 +122,7 @@ export function ParcelBoundaryPicker({
           !degisti
             ? "Kaydetmek için önce sınırı çizin veya düzenleyin"
             : sinir
-              ? `Kaydet — ${alanDonum} dönüm`
+              ? `Kaydet — ${alanDonum} dekar`
               : "Kaydetmek için önce bir sınır çizin"
         }
         disabled={!degisti || !sinir}

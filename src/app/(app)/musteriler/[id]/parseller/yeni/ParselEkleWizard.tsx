@@ -144,9 +144,9 @@ export function ParselEkleWizard({ customer }: { customer: Customer }) {
                     />
                   </div>
                   <div className="field">
-                    <label htmlFor="parsel-alan">Alan (dönüm)</label>
+                    <label htmlFor="parsel-alan">Alan (dekar)</label>
                     {haritaTamam ? (
-                      <input id="parsel-alan" value={`${alanDonum} dönüm`} readOnly disabled />
+                      <input id="parsel-alan" value={`${alanDonum} dekar`} readOnly disabled />
                     ) : (
                       <input
                         id="parsel-alan"
@@ -228,7 +228,7 @@ export function ParselEkleWizard({ customer }: { customer: Customer }) {
                     />
                   </div>
                   <p className="calc-note">
-                    Alan ({alanDonum} dönüm) ile sıra arası × sıra üzeri değerlerinden otomatik hesaplanır, gerekirse elle düzeltebilirsiniz.
+                    Alan ({alanDonum} dekar) ile sıra arası × sıra üzeri değerlerinden otomatik hesaplanır, gerekirse elle düzeltebilirsiniz.
                   </p>
                 </div>
               </section>
@@ -250,7 +250,7 @@ export function ParselEkleWizard({ customer }: { customer: Customer }) {
                   </div>
                   <div className="summary-row">
                     <span className="k">Alan</span>
-                    <span className="v">{alanDonum} dönüm</span>
+                    <span className="v">{alanDonum} dekar</span>
                   </div>
                 </div>
 
@@ -354,7 +354,7 @@ export function ParselEkleWizard({ customer }: { customer: Customer }) {
             </div>
             <div className="stat-row">
               <span className="k">Alan</span>
-              <span className="v">{alanDonum} dönüm</span>
+              <span className="v">{alanDonum} dekar</span>
             </div>
             <div className="stat-row">
               <span className="k">Ürün / Çeşit</span>

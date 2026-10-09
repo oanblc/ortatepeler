@@ -178,7 +178,7 @@ export function blockNoUret(musteriAdi: string, mevcutBlockNolar: string[]): str
 /** Cultivar/Ha/Trees per ha — parselin mevcut alanlarından otomatik türetilir, elle girilmez. */
 export function ygpMetaHesapla(parcel: { urunler: { urun: string; anac?: string }[]; alanDonum: number; agacSayisi?: number }) {
   const cultivar = parcel.urunler.length > 0 ? parcel.urunler.map((u) => (u.anac ? `${u.urun} (${u.anac})` : u.urun)).join(", ") : "—";
-  const ha = parcel.alanDonum / 10; // alanDonum "dönüm" cinsinden tutulur, 1 ha = 10 dönüm
+  const ha = parcel.alanDonum / 10; // alanDonum "dekar" cinsinden tutulur, 1 ha = 10 dekar
   const treesPerHa = parcel.agacSayisi && ha > 0 ? Math.round(parcel.agacSayisi / ha) : null;
   return { cultivar, ha, treesPerHa };
 }

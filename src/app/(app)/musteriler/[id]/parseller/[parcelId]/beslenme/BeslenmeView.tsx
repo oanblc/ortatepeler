@@ -264,7 +264,7 @@ export function BeslenmeView({
       <div className="beslenme-plan-sutunu">
         {!parcel.alanDonum && (
           <div className="beslenme-uyari">
-            Bu parselin alanı (dönüm) tanımlı değil — sezonluk toplam alım miktarı bu yüzden 0 çıkacaktır. Ağaç
+            Bu parselin alanı (dekar) tanımlı değil — sezonluk toplam alım miktarı bu yüzden 0 çıkacaktır. Ağaç
             başına dozlar yine de doğru hesaplanır.
           </div>
         )}

@@ -239,7 +239,7 @@ export async function updateCustomerAction(customerId: string, formData: FormDat
 }
 
 // createParcelAction ve updateParcelAction'ın paylaştığı alanlar — alan
-// (dönüm) ve sınır bunun dışında, çünkü onlar sadece haritadan gelir ve
+// (dekar) ve sınır bunun dışında, çünkü onlar sadece haritadan gelir ve
 // düzenleme akışında değiştirilemez.
 function parseParcelCommonFields(formData: FormData) {
   const ad = String(formData.get("ad") ?? "").trim();

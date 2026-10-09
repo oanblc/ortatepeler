@@ -192,7 +192,7 @@ export interface BeslenmePlani {
   hedefN: number; // referans oran (genelde 100)
   hedefP: number; // hedef N:P:K oranındaki P payı
   hedefK: number; // hedef N:P:K oranındaki K payı
-  agacSayisiHa: number; // dönüm/ha başına ağaç sayısı
+  agacSayisiHa: number; // dekar/ha başına ağaç sayısı
   not?: string;
   createdAt: string;
 }

@@ -6,7 +6,7 @@ import type { IlgiliKisi } from "@/types";
 // düzeni (şablon ve okuyucu aynı sabitleri kullanır, birlikte değişmeli):
 // "Müşteriler": A Müşteri adı*, B Adres, C-E İlgili kişi 1 (ad, telefon, e-posta),
 //   F-H İlgili kişi 2, I-K İlgili kişi 3.
-// "Parseller": A Müşteri adı*, B Parsel adı*, C Alan (dönüm), D-I Ürün/Anaç x3,
+// "Parseller": A Müşteri adı*, B Parsel adı*, C Alan (dekar), D-I Ürün/Anaç x3,
 //   J Sulama şekli, K Sıra arası, L Sıra üzeri, M Ağaç sayısı.
 export const VERI_SAYFASI = "Müşteriler";
 export const PARSEL_SAYFASI = "Parseller";
@@ -71,7 +71,7 @@ export async function sablonUret(): Promise<Buffer> {
   for (let k = 0; k < KISI_SAYISI; k++) ws.getColumn(4 + k * 3).numFmt = "@";
 
   const wp = wb.addWorksheet(PARSEL_SAYFASI, { views: [{ state: "frozen", ySplit: 1 }] });
-  const pBasliklar = ["Müşteri / İşletme Adı *", "Parsel Adı *", "Alan (dönüm)"];
+  const pBasliklar = ["Müşteri / İşletme Adı *", "Parsel Adı *", "Alan (dekar)"];
   for (let i = 1; i <= URUN_SAYISI; i++) pBasliklar.push(`Ürün ${i}`, `Anaç ${i}`);
   pBasliklar.push("Sulama Şekli", "Sıra Arası (m)", "Sıra Üzeri (m)", "Ağaç Sayısı");
   wp.addRow(pBasliklar);
@@ -139,7 +139,7 @@ export async function sablonUret(): Promise<Buffer> {
   const ornek = aciklama.addRow(["Arıkoğlu Çiftlik", "Sarıçam, Adana"]);
   ornek.font = { italic: true, color: { argb: "FF6B7280" } };
   aciklama.addRow(["İlgili Kişi 1", "Ahmet Arıkoğlu · 0532 123 45 67 · ahmet@ornek.com"]).font = { italic: true, color: { argb: "FF6B7280" } };
-  aciklama.addRow(["Parsel örneği", "Arıkoğlu Çiftlik · Kuzey Parseli · 45 dönüm · Nar / Hicaz · Damla Sulama · 5 m × 3 m"]).font = { italic: true, color: { argb: "FF6B7280" } };
+  aciklama.addRow(["Parsel örneği", "Arıkoğlu Çiftlik · Kuzey Parseli · 45 dekar · Nar / Hicaz · Damla Sulama · 5 m × 3 m"]).font = { italic: true, color: { argb: "FF6B7280" } };
 
   return Buffer.from(await wb.xlsx.writeBuffer());
 }

@@ -72,7 +72,7 @@ function initials(name: string) {
 }
 
 function formatDonum(n: number) {
-  return `${n.toLocaleString("tr-TR", { maximumFractionDigits: 1 })} dönüm`;
+  return `${n.toLocaleString("tr-TR", { maximumFractionDigits: 1 })} dekar`;
 }
 
 function formatParcelDate(iso: string) {

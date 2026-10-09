@@ -10,7 +10,7 @@ import type { Customer, Parcel, Well, ParcelUrun } from "@/types";
 
 // Parsel Ekle sihirbazının 2-5. adımlarındaki alanları tek sayfada, mevcut
 // değerlerle önceden doldurulmuş halde gösteren düzenleme formu. Sihirbazdan
-// farklı olarak alan (dönüm) ve sınır burada YOK — onlar haritadan gelir ve
+// farklı olarak alan (dekar) ve sınır burada YOK — onlar haritadan gelir ve
 // bu akışın kapsamı dışında bırakıldı (bkz. ParcelDrawMap).
 export function EditParcelForm({ customer, parcel, kuyular }: { customer: Customer; parcel: Parcel; kuyular: Well[] }) {
   const [ad, setAd] = useState(parcel.ad);
@@ -75,8 +75,8 @@ export function EditParcelForm({ customer, parcel, kuyular }: { customer: Custom
             <input id="parsel-ad" name="ad" value={ad} onChange={(e) => setAd(e.target.value)} required />
           </div>
           <div className="field">
-            <label htmlFor="parsel-alan">Alan (dönüm)</label>
-            <input id="parsel-alan" value={`${parcel.alanDonum} dönüm`} readOnly disabled />
+            <label htmlFor="parsel-alan">Alan (dekar)</label>
+            <input id="parsel-alan" value={`${parcel.alanDonum} dekar`} readOnly disabled />
           </div>
           <p className="calc-note">Alan ve sınır haritadan çizildi, bu formdan değiştirilemez.</p>
         </div>
@@ -197,7 +197,7 @@ export function EditParcelForm({ customer, parcel, kuyular }: { customer: Custom
             />
           </div>
           <p className="calc-note">
-            Alan ({parcel.alanDonum} dönüm) ile sıra arası × sıra üzeri değerlerinden otomatik hesaplanır, gerekirse elle
+            Alan ({parcel.alanDonum} dekar) ile sıra arası × sıra üzeri değerlerinden otomatik hesaplanır, gerekirse elle
             düzeltebilirsiniz.
           </p>
         </div>

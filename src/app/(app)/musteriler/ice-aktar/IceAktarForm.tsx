@@ -205,7 +205,7 @@ export function IceAktarForm({ maksSatir }: { maksSatir: number }) {
                           <td>{s.satir}</td>
                           <td>{s.musteriAdi || "—"}</td>
                           <td>{s.ad || "—"}</td>
-                          <td>{s.alanDonum ? `${s.alanDonum} dönüm` : "—"}</td>
+                          <td>{s.alanDonum ? `${s.alanDonum} dekar` : "—"}</td>
                           <td>{s.urunler.length ? s.urunler.map((u) => (u.anac ? `${u.urun} / ${u.anac}` : u.urun)).join(", ") : "—"}</td>
                           <td>{s.sulamaSekli || "—"}</td>
                           <td>{s.agacSayisi ?? "—"}</td>
