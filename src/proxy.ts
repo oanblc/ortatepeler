@@ -29,5 +29,7 @@ export const config = {
     "/gelir-gider/:path*",
     "/rapor-olustur/:path*",
     "/kayitlar/:path*",
+    "/revizeler/:path*",
+    "/kullanicilar/:path*",
   ],
 };

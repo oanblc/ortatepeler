@@ -2,6 +2,10 @@ export function IconSprite() {
   return (
     <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
       <defs>
+        <symbol id="i-x" viewBox="0 0 24 24">
+          <path d="M6 6l12 12" />
+          <path d="M18 6 6 18" />
+        </symbol>
         <symbol id="i-leaf" viewBox="0 0 24 24">
           <path d="M12 3C7 3 4 7 4 12c0 5 3 8 8 9 5-1 8-4 8-9 0-5-3-9-8-9Z" />
           <path d="M8 15c2-4 4-7 9-11" />

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { gorselKucult } from "@/lib/gorselKucult";
 import { Icon } from "@/components/IconSprite";
 import { Toast } from "@/components/Toast";
 import { useNotifications } from "@/components/NotificationsProvider";
@@ -268,6 +269,8 @@ export function CustomerDetailTabs({
   const [ziyaretOncelik, setZiyaretOncelik] = useState<number | null>(null);
   const [ziyaretFotograflar, setZiyaretFotograflar] = useState<File[]>([]);
   const [ziyaretKaydediliyor, setZiyaretKaydediliyor] = useState(false);
+  const [ziyaretHata, setZiyaretHata] = useState<string | null>(null);
+  const [ziyaretFotoIsleniyor, setZiyaretFotoIsleniyor] = useState(false);
   const ziyaretFotoInputRef = useRef<HTMLInputElement>(null);
   // Kaydet'e basınca sayfa ortasında kısa süreli beliren onay — Toast (sağ
   // alt, kalıcı bildirim merkezine de eklenen addNotification) yetersiz
@@ -420,13 +423,18 @@ export function CustomerDetailTabs({
     };
   }, [ziyaretFotoOnizlemeUrls]);
 
-  function ziyaretFotoSecildi(e: React.ChangeEvent<HTMLInputElement>) {
+  async function ziyaretFotoSecildi(e: React.ChangeEvent<HTMLInputElement>) {
     const secilenler = Array.from(e.target.files ?? []);
-    if (secilenler.length > 0) {
-      setZiyaretFotograflar((onceki) => [...onceki, ...secilenler]);
-    }
     // Aynı dosya tekrar seçilebilsin diye input sıfırlanır.
     e.target.value = "";
+    if (secilenler.length === 0) return;
+    setZiyaretFotoIsleniyor(true);
+    try {
+      const kucultulenler = await Promise.all(secilenler.map((d) => gorselKucult(d)));
+      setZiyaretFotograflar((onceki) => [...onceki, ...kucultulenler]);
+    } finally {
+      setZiyaretFotoIsleniyor(false);
+    }
   }
 
   function ziyaretFotoKaldir(index: number) {
@@ -436,6 +444,7 @@ export function CustomerDetailTabs({
   async function ziyaretKaydet() {
     if (ziyaretParselIds.size === 0 || !ziyaretTarih) return;
     setZiyaretKaydediliyor(true);
+    setZiyaretHata(null);
     try {
       const fd = new FormData();
       fd.set("tarih", ziyaretTarih);
@@ -452,6 +461,11 @@ export function CustomerDetailTabs({
       setKaydedildiPopup(true);
       ziyaretFormunuTemizle();
       router.refresh();
+    } catch (err) {
+      // Kayıt başarısızsa form olduğu gibi kalır (veri kaybolmasın) ama kullanıcı
+      // kaydın yapılmadığını açıkça görür — eskiden hata sessizce yutuluyordu.
+      console.error("Ziyaret kaydı kaydedilemedi:", err);
+      setZiyaretHata("Kayıt yapılamadı. Bağlantınızı kontrol edip tekrar deneyin; seçimleriniz korundu.");
     } finally {
       setZiyaretKaydediliyor(false);
     }
@@ -853,17 +867,23 @@ export function CustomerDetailTabs({
 
             </div>
 
+            {ziyaretHata && (
+              <p role="alert" className="zk-hata">
+                {ziyaretHata}
+              </p>
+            )}
+
             <div className="zk-actions">
-              <button type="button" className="btn" onClick={ziyaretFormunuTemizle}>
+              <button type="button" className="btn" onClick={() => { setZiyaretHata(null); ziyaretFormunuTemizle(); }}>
                 Vazgeç
               </button>
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={ziyaretKaydet}
-                disabled={ziyaretKaydediliyor || ziyaretParselIds.size === 0 || !ziyaretTarih}
+                disabled={ziyaretKaydediliyor || ziyaretFotoIsleniyor || ziyaretParselIds.size === 0 || !ziyaretTarih}
               >
-                {ziyaretKaydediliyor ? "Kaydediliyor..." : "Kaydet"}
+                {ziyaretKaydediliyor ? "Kaydediliyor..." : ziyaretFotoIsleniyor ? "Fotoğraf hazırlanıyor..." : "Kaydet"}
               </button>
             </div>
           </div>

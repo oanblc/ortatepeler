@@ -44,6 +44,10 @@ export function Sidebar({ user }: { user: { ad: string; rol: "admin" | "muhendis
             Kullanıcılar
           </Link>
         )}
+        <Link href="/revizeler" aria-current={pathname.startsWith("/revizeler") ? "page" : undefined}>
+          <Icon name="clipboard" />
+          Revizeler
+        </Link>
         <Link href="/ayarlar" aria-current={pathname.startsWith("/ayarlar") ? "page" : undefined}>
           <Icon name="settings" />
           Ayarlar

@@ -2,6 +2,7 @@ import { Bricolage_Grotesque, Public_Sans, JetBrains_Mono } from "next/font/goog
 import { requireUser } from "@/lib/session";
 import { IconSprite } from "@/components/IconSprite";
 import { Sidebar } from "@/components/Sidebar";
+import { RevizePaneli } from "@/components/RevizePaneli";
 import { NotificationsProvider } from "@/components/NotificationsProvider";
 import "./app-theme.css";
 import "./parseller-theme.css";
@@ -36,6 +37,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <Sidebar user={{ ad: user.ad, rol: user.rol }} />
           <div className="app-main">{children}</div>
         </div>
+        <RevizePaneli />
       </NotificationsProvider>
     </div>
   );

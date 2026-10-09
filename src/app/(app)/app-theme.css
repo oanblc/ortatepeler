@@ -253,3 +253,23 @@ table.data-table { width: 100%; border-collapse: collapse; min-width: 720px; }
   .sidebar { display: none; }
   .form-layout-panel { grid-template-columns: 1fr; }
 }
+
+/* Revize paneli — sağ altta yüzen revize formu */
+.yb-fab { position: fixed; right: 24px; bottom: 24px; z-index: 80; display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px 12px 14px; border: none; border-radius: 999px; background: var(--brand); color: #fff; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 24px rgba(14, 148, 136, 0.35); }
+.yb-fab:hover { background: var(--brand-hover, var(--brand)); }
+.yb-fab .icon { width: 18px; height: 18px; }
+.yb-panel { position: fixed; right: 24px; bottom: 24px; z-index: 80; width: 392px; max-width: calc(100vw - 32px); max-height: calc(100vh - 48px); display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 60px rgba(16, 24, 40, 0.22); overflow: hidden; }
+.yb-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 14px 16px; background: var(--brand-deep); color: #fff; }
+.yb-title { font-family: var(--font-display), Georgia, serif; font-size: 16px; font-weight: 600; }
+.yb-sub { font-size: 11.5px; color: #b9c8b6; margin-top: 2px; }
+.yb-close { background: transparent; border: none; color: #fff; cursor: pointer; padding: 4px; border-radius: 8px; }
+.yb-close:hover { background: var(--brand-deep-2, rgba(255,255,255,0.12)); }
+.yb-close .icon { width: 18px; height: 18px; }
+.yb-revize { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.yb-revize-ack { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin: 0; }
+.yb-revize-ack strong { color: var(--ink); }
+.yb-revize textarea { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 13px; resize: vertical; }
+.yb-hata { margin: 0; font-size: 12.5px; color: #b42318; }
+.yb-basari { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; padding: 14px; border-radius: 12px; background: #eef8f1; border: 1px solid #c9e6d3; font-size: 13px; }
+@media (max-width: 760px) { .yb-fab { right: 16px; bottom: 16px; } .yb-panel { right: 16px; bottom: 16px; } }
+@media print { .yb-fab, .yb-panel { display: none; } }

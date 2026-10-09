@@ -14,6 +14,7 @@ import type {
   SulamaPlani,
   DegerlendirmeSorusu,
   ParselDegerlendirmesi,
+  Revize,
   HastalikTanimi,
   YaprakGubrelemePlani,
   GelirGiderKaydi,
@@ -37,6 +38,7 @@ const COLLECTIONS = {
   hastalikTanimlari: "hastalik-tanimlari",
   yaprakGubrelemePlanlari: "yaprak-gubreleme-planlari",
   gelirGiderKayitlari: "gelir-gider-kayitlari",
+  revizeler: "revizeler",
 } as const;
 
 export const users = {
@@ -436,4 +438,19 @@ export const gelirGiderKayitlari = {
       createdAt: new Date().toISOString(),
     }),
   remove: (id: string) => deleteOne(COLLECTIONS.gelirGiderKayitlari, id),
+};
+
+// Revizeler — yardım botundan gelen sayfa bazlı değişiklik talepleri.
+export const revizeler = {
+  list: async () =>
+    (await readCollection<Revize>(COLLECTIONS.revizeler)).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+  create: (data: Omit<Revize, "id" | "createdAt" | "durum">) =>
+    insertOne<Revize>(COLLECTIONS.revizeler, {
+      ...data,
+      id: newId(),
+      durum: "acik",
+      createdAt: new Date().toISOString(),
+    }),
+  update: (id: string, patch: Partial<Revize>) => updateOne<Revize>(COLLECTIONS.revizeler, id, patch),
+  remove: (id: string) => deleteOne(COLLECTIONS.revizeler, id),
 };

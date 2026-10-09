@@ -323,3 +323,21 @@ export interface ParselDegerlendirmesi {
   cevaplar: { soruId: string; puan: number; not?: string; secim?: string; metin?: string }[];
   createdAt: string;
 }
+
+// Panelde sistem hakkında verilen revize/değişiklik talebi — sağ alttaki "Revize" panelinden
+// kaydedilir, /revizeler sayfasında
+// sayfa bazlı listelenir. Müşteri/parsele bağlı DEĞİL, genel bir koleksiyon.
+export type RevizeDurumu = "acik" | "yapildi" | "iptal";
+
+export interface Revize {
+  id: string;
+  /** Revizenin ait olduğu sayfanın yolu, örn. "/musteriler/c1/parseller/yeni". */
+  sayfaYolu: string;
+  /** İnsan okuyabilir sayfa adı, örn. "Yeni Parsel (Parsel ekleme sihirbazı)". */
+  sayfaAdi: string;
+  aciklama: string;
+  durum: RevizeDurumu;
+  olusturanId: string;
+  olusturanAd: string;
+  createdAt: string;
+}
