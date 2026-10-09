@@ -1185,3 +1185,45 @@ a.app-empty p { color: var(--brand); font-weight: 600; }
 .hk-etiket { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #8a2a1a; background: #fdf0ec; border: 1px solid #f3cfc6; border-radius: 999px; padding: 4px 10px; }
 .hk-etiket button { background: none; border: none; padding: 0; cursor: pointer; color: inherit; font-size: 13px; line-height: 1; }
 .hk-bos { font-size: 12px; color: var(--muted); padding: 6px 8px; }
+
+/* Kayıtlar sayfası — filtreler, detay satırı, fotoğraf büyütme */
+.kl-filtre { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
+.kl-filtre-ust { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.kl-filtre-ust .search { flex: 1; min-width: 240px; }
+.kl-hazir { display: flex; gap: 6px; flex-wrap: wrap; }
+.kl-hazir button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 13px; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+.kl-hazir button:hover { border-color: var(--brand); color: var(--brand); }
+.kl-filtre-alt { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.kl-filtre-alt label { display: flex; flex-direction: column; gap: 4px; min-width: 150px; }
+.kl-filtre-alt label > span { font-size: 11.5px; font-weight: 600; color: var(--ink-2); }
+.kl-filtre-alt select, .kl-filtre-alt input[type="date"] { border: 1px solid var(--line); border-radius: var(--radius-s); padding: 8px 10px; font: inherit; font-size: 13px; background: #fff; color: var(--ink); }
+.kl-filtre-alt select:focus, .kl-filtre-alt input:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
+.kl-filtre-alt .kl-onay { flex-direction: row; align-items: center; gap: 8px; min-width: 0; padding-bottom: 8px; cursor: pointer; }
+.kl-filtre-alt .kl-onay span { font-size: 13px; font-weight: 500; color: var(--ink); }
+.kl-filtre-alt .kl-onay input { width: 16px; height: 16px; accent-color: var(--brand); margin: 0; }
+.kl-temizle { margin-left: auto; }
+.kl-satir { cursor: pointer; }
+.kl-satir[data-acik="true"] td { background: var(--surface-2); }
+.kl-parsel { font-weight: 600; color: var(--ink); }
+.kl-chip { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; background: var(--surface-2); border: 1px solid var(--line-soft); color: var(--ink-2); white-space: nowrap; }
+.kl-chip-hastalik { background: #fdf0ec; border-color: #f3cfc6; color: #8a2a1a; }
+.kl-detay-satir > td { padding: 0 !important; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.kl-detay { padding: 16px 20px 18px; display: flex; flex-direction: column; gap: 16px; }
+.kl-detay dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px 24px; }
+.kl-detay dt { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin-bottom: 3px; }
+.kl-detay dd { margin: 0; font-size: 13.5px; color: var(--ink); }
+.kl-detay .kl-genis { grid-column: 1 / -1; }
+.kl-not { white-space: pre-wrap; line-height: 1.55; }
+.kl-fotolar { display: flex; flex-wrap: wrap; gap: 10px; }
+.kl-foto { width: 120px; height: 120px; padding: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; cursor: zoom-in; }
+.kl-foto img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.15s; }
+.kl-foto:hover img { transform: scale(1.05); }
+.kl-detay-aksiyon { display: flex; gap: 8px; flex-wrap: wrap; }
+.kl-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.kl-lightbox { position: fixed; inset: 0; z-index: 200; background: rgba(10, 16, 12, 0.88); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.kl-lightbox img { max-width: min(92vw, 1400px); max-height: 88vh; border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); background: #111; }
+.kl-lb-kapat { position: absolute; top: 18px; right: 22px; width: 42px; height: 42px; border-radius: 50%; border: none; background: rgba(255,255,255,0.14); color: #fff; font-size: 18px; cursor: pointer; }
+.kl-lb-ok { position: absolute; top: 50%; transform: translateY(-50%); width: 46px; height: 64px; border: none; border-radius: 12px; background: rgba(255,255,255,0.14); color: #fff; font-size: 34px; cursor: pointer; }
+.kl-lb-sol { left: 18px; }
+.kl-lb-sag { right: 18px; }
+.kl-lb-sayac { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); color: #cfd8cb; font-size: 13px; }
