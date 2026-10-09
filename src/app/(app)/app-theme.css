@@ -48,8 +48,8 @@
 .sidebar { background: var(--brand-deep); color: #dbe3d9; padding: 22px 16px 18px; display: flex; flex-direction: column; gap: 18px; position: sticky; top: 0; height: 100vh; }
 /* Logo koyu sidebar zemininde çıplak durunca kirli görünüyor (beyaz kontur
    ince arka planla karışıyor) — antetteki gibi beyaz kart üzerine oturtulur. */
-.brand-mark { align-self: flex-start; display: flex; align-items: center; margin: 0 6px; padding: 8px 14px; background: #fff; border-radius: 9px; text-decoration: none; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16); }
-.brand-mark-logo { height: 24px; width: auto; display: block; }
+.brand-mark { align-self: stretch; display: flex; align-items: center; margin: 0; padding: 10px 12px; background: #fff; border-radius: 9px; text-decoration: none; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16); }
+.brand-mark-logo { width: 100%; height: auto; display: block; }
 .nav { display: flex; flex-direction: column; gap: 2px; }
 .nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-s); text-decoration: none; color: #a2b19e; font-size: 13.5px; font-weight: 500; }
 .nav a .icon { width: 17px; height: 17px; flex: none; }
