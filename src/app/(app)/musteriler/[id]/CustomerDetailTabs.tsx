@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { gorselKucult } from "@/lib/gorselKucult";
+import { FotoGoruntuleyici } from "@/components/FotoGoruntuleyici";
 import { Icon } from "@/components/IconSprite";
 import { Toast } from "@/components/Toast";
 import { useNotifications } from "@/components/NotificationsProvider";
@@ -270,6 +271,7 @@ export function CustomerDetailTabs({
   const [ziyaretFenolojikDonem, setZiyaretFenolojikDonem] = useState("");
   const [ziyaretDurum, setZiyaretDurum] = useState("");
   const [ziyaretHastaliklar, setZiyaretHastaliklar] = useState<string[]>([]);
+  const [fotoPopup, setFotoPopup] = useState<{ liste: string[]; i: number } | null>(null);
   const [hastalikDropdownAcik, setHastalikDropdownAcik] = useState(false);
   const hastalikDropdownRef = useRef<HTMLDivElement>(null);
   const [ziyaretOncelik, setZiyaretOncelik] = useState<number | null>(null);
@@ -584,6 +586,10 @@ export function CustomerDetailTabs({
   return (
     <>
       {banner && <Toast message={banner} />}
+      {fotoPopup && (
+        <FotoGoruntuleyici liste={fotoPopup.liste} indeks={fotoPopup.i} onIndeks={(i) => setFotoPopup({ ...fotoPopup, i })} onKapat={() => setFotoPopup(null)} />
+      )}
+
       {kaydedildiPopup && (
         <div className="zk-onay-overlay" role="status" aria-live="polite">
           <div className="zk-onay-kart">
@@ -1084,11 +1090,17 @@ export function CustomerDetailTabs({
                           </dl>
                           {kayit.gorseller && kayit.gorseller.length > 0 && (
                             <div className="saha-row-detay-fotolar">
-                              {kayit.gorseller.map((url) => (
-                                <a key={url} href={url} target="_blank" rel="noreferrer">
+                              {kayit.gorseller.map((url, i) => (
+                                <button
+                                  key={url}
+                                  type="button"
+                                  className="saha-foto-btn"
+                                  onClick={() => setFotoPopup({ liste: kayit.gorseller ?? [], i })}
+                                  aria-label={`Fotoğrafı büyüt (${i + 1}/${kayit.gorseller?.length})`}
+                                >
                                   {/* eslint-disable-next-line @next/next/no-img-element -- kullanıcı yüklediği serbest boyutlu fotoğraf, Image bileşeninin statik boyut gereksinimine uymuyor (bkz. yukarıdaki mevcut ziyaretFotoOnizlemeUrls <img> kullanımı, aynı gerekçe) */}
                                   <img src={url} alt="Saha fotoğrafı" />
-                                </a>
+                                </button>
                               ))}
                             </div>
                           )}

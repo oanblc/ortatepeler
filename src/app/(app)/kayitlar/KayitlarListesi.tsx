@@ -1,9 +1,10 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/IconSprite";
 import { tipBadgeSinifi, formatKayitTarihi } from "@/lib/kayitlar";
+import { FotoGoruntuleyici } from "@/components/FotoGoruntuleyici";
 
 export type KayitSatiri = {
   id: string;
@@ -108,18 +109,6 @@ export function KayitlarListesi({ satirlar }: { satirlar: KayitSatiri[] }) {
     set(v);
     setGorunen(SAYFA_BOYU);
   };
-
-  // Büyük fotoğraf görünümü: Esc ile kapat, ok tuşlarıyla gez
-  useEffect(() => {
-    if (!buyuk) return;
-    function tus(e: KeyboardEvent) {
-      if (e.key === "Escape") setBuyuk(null);
-      else if (e.key === "ArrowRight") setBuyuk((b) => (b ? { ...b, i: (b.i + 1) % b.liste.length } : b));
-      else if (e.key === "ArrowLeft") setBuyuk((b) => (b ? { ...b, i: (b.i - 1 + b.liste.length) % b.liste.length } : b));
-    }
-    window.addEventListener("keydown", tus);
-    return () => window.removeEventListener("keydown", tus);
-  }, [buyuk]);
 
   if (satirlar.length === 0) {
     return (
@@ -401,42 +390,7 @@ export function KayitlarListesi({ satirlar }: { satirlar: KayitSatiri[] }) {
       )}
 
       {buyuk && (
-        <div className="kl-lightbox" role="dialog" aria-modal="true" aria-label="Fotoğraf" onClick={() => setBuyuk(null)}>
-          <button type="button" className="kl-lb-kapat" aria-label="Kapat" onClick={() => setBuyuk(null)}>
-            ✕
-          </button>
-          {buyuk.liste.length > 1 && (
-            <button
-              type="button"
-              className="kl-lb-ok kl-lb-sol"
-              aria-label="Önceki fotoğraf"
-              onClick={(e) => {
-                e.stopPropagation();
-                setBuyuk({ ...buyuk, i: (buyuk.i - 1 + buyuk.liste.length) % buyuk.liste.length });
-              }}
-            >
-              ‹
-            </button>
-          )}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={buyuk.liste[buyuk.i]} alt="Büyütülmüş saha fotoğrafı" onClick={(e) => e.stopPropagation()} />
-          {buyuk.liste.length > 1 && (
-            <button
-              type="button"
-              className="kl-lb-ok kl-lb-sag"
-              aria-label="Sonraki fotoğraf"
-              onClick={(e) => {
-                e.stopPropagation();
-                setBuyuk({ ...buyuk, i: (buyuk.i + 1) % buyuk.liste.length });
-              }}
-            >
-              ›
-            </button>
-          )}
-          <span className="kl-lb-sayac">
-            {buyuk.i + 1} / {buyuk.liste.length}
-          </span>
-        </div>
+        <FotoGoruntuleyici liste={buyuk.liste} indeks={buyuk.i} onIndeks={(i) => setBuyuk({ ...buyuk, i })} onKapat={() => setBuyuk(null)} />
       )}
     </>
   );
