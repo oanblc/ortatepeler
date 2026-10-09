@@ -51,6 +51,7 @@ export function KayitlarListesi({ satirlar }: { satirlar: KayitSatiri[] }) {
   const [gorunen, setGorunen] = useState(SAYFA_BOYU);
   const [acik, setAcik] = useState<string | null>(null);
   const [buyuk, setBuyuk] = useState<{ liste: string[]; i: number } | null>(null);
+  const [kirikFotolar, setKirikFotolar] = useState<Set<string>>(new Set());
 
   const musteriler = useMemo(() => Array.from(new Map(satirlar.map((s) => [s.musteriId, s.musteriAd])).entries()).sort((a, b) => a[1].localeCompare(b[1], "tr")), [satirlar]);
   const parseller = useMemo(
@@ -355,10 +356,16 @@ export function KayitlarListesi({ satirlar }: { satirlar: KayitSatiri[] }) {
                               {s.gorseller.length > 0 && (
                                 <div className="kl-fotolar" aria-label="Fotoğraflar">
                                   {s.gorseller.map((yol, i) => (
-                                    <button key={yol} type="button" className="kl-foto" onClick={() => setBuyuk({ liste: s.gorseller, i })} aria-label={`Fotoğrafı büyüt (${i + 1}/${s.gorseller.length})`}>
-                                      {/* eslint-disable-next-line @next/next/no-img-element -- kullanıcının yüklediği serbest boyutlu fotoğraf */}
-                                      <img src={yol} alt={`${s.parselAd} fotoğrafı ${i + 1}`} loading="lazy" />
-                                    </button>
+                                    kirikFotolar.has(yol) ? (
+                                      <div key={yol} className="kl-foto kl-foto-kirik" title={yol}>
+                                        Fotoğraf dosyası bulunamadı
+                                      </div>
+                                    ) : (
+                                      <button key={yol} type="button" className="kl-foto" onClick={() => setBuyuk({ liste: s.gorseller, i })} aria-label={`Fotoğrafı büyüt (${i + 1}/${s.gorseller.length})`}>
+                                        {/* eslint-disable-next-line @next/next/no-img-element -- kullanıcının yüklediği serbest boyutlu fotoğraf */}
+                                        <img src={yol} alt={`${s.parselAd} fotoğrafı ${i + 1}`} loading="lazy" onError={() => setKirikFotolar((o) => new Set(o).add(yol))} />
+                                      </button>
+                                    )
                                   ))}
                                 </div>
                               )}

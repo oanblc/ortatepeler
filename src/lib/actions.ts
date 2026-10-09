@@ -40,6 +40,7 @@ import type {
   ParselDegerlendirmesi,
 } from "@/types";
 import { soruTipi, soruParselIcinGecerli } from "./degerlendirme";
+import { UPLOAD_ROOT } from "./uploads";
 import {
   SESSION_COOKIE,
   SESSION_MAX_AGE,
@@ -635,7 +636,7 @@ export async function deleteRecordAction(customerId: string, parcelId: string, r
 }
 
 // Ziyaret Kaydı sekmesinin fotoğraf alanından gelen dosyaları
-// public/uploads/ziyaret-kaydi/<visitId>/ altına yazar. Bir ziyaretteki TÜM
+// data/uploads/ziyaret-kaydi/<visitId>/ altına yazar (bkz. uploads.ts). Bir ziyaretteki TÜM
 // seçili parseller için oluşturulan kayıtlar aynı visitId'yi (dolayısıyla
 // aynı gorseller listesini) paylaşır — dosyalar burada bir kez yazılır.
 // Dosya adı asla kullanıcıdan gelen orijinal ada güvenilerek üretilmez;
@@ -649,7 +650,7 @@ async function ziyaretFotograflariniKaydet(formData: FormData): Promise<string[]
   if (gorselDosyalar.length === 0) return [];
 
   const visitId = randomUUID();
-  const hedefKlasor = path.join(process.cwd(), "public", "uploads", "ziyaret-kaydi", visitId);
+  const hedefKlasor = path.join(UPLOAD_ROOT, "ziyaret-kaydi", visitId);
   await mkdir(hedefKlasor, { recursive: true });
 
   const yollar: string[] = [];
@@ -1172,7 +1173,7 @@ export async function saveParselDegerlendirmeAction(
 // --- Gelir Gider (genel işletme gelir/gider takibi, müşteri/parsele bağlı DEĞİL) ---
 
 // ziyaretFotograflariniKaydet ile AYNI mantığın gelir-gider fişleri için
-// bağımsız bir kopyası — public/uploads/gelir-gider/<kayitId>/ altına yazar.
+// bağımsız bir kopyası — data/uploads/gelir-gider/<kayitId>/ altına yazar.
 // Kod tekrarı kasıtlı (bkz. görev tanımı) — mevcut fonksiyon değiştirilmedi.
 async function gelirGiderFisleriniKaydet(formData: FormData, kayitId: string): Promise<string[]> {
   const dosyalar = formData.getAll("fisler").filter((f): f is File => f instanceof File && f.size > 0);
@@ -1181,7 +1182,7 @@ async function gelirGiderFisleriniKaydet(formData: FormData, kayitId: string): P
   const gorselDosyalar = dosyalar.filter((f) => f.type.startsWith("image/"));
   if (gorselDosyalar.length === 0) return [];
 
-  const hedefKlasor = path.join(process.cwd(), "public", "uploads", "gelir-gider", kayitId);
+  const hedefKlasor = path.join(UPLOAD_ROOT, "gelir-gider", kayitId);
   await mkdir(hedefKlasor, { recursive: true });
 
   const yollar: string[] = [];

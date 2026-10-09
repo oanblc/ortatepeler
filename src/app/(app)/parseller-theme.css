@@ -1227,3 +1227,4 @@ a.app-empty p { color: var(--brand); font-weight: 600; }
 .kl-lb-sol { left: 18px; }
 .kl-lb-sag { right: 18px; }
 .kl-lb-sayac { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); color: #cfd8cb; font-size: 13px; }
+.kl-foto-kirik { display: flex; align-items: center; justify-content: center; padding: 10px; text-align: center; font-size: 11.5px; color: var(--muted); background: var(--surface-2); border-style: dashed; cursor: default; }
