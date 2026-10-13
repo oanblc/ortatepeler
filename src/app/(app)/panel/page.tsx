@@ -31,6 +31,10 @@ export default async function PanoPage() {
   const parselMap = new Map(parselListeleri.flat().map((p) => [p.id, p]));
   const tipMap = new Map(tipler.map((t) => [t.id, t]));
   const acikGorevler = gorevListeleri.flat().filter((g) => g.durum === "bekliyor");
+  // Açık görevlerin hepsi tek müşteriye aitse doğrudan onun görev sekmesine git.
+  const gorevMusteriIdleri = new Set(acikGorevler.map((g) => g.customerId));
+  const gorevHref =
+    gorevMusteriIdleri.size === 1 ? `/musteriler/${[...gorevMusteriIdleri][0]}?tab=gorevler` : "/musteriler";
 
   const bugunIso = new Date().toISOString().slice(0, 10);
   const buHaftaBaslangic = haftaBaslangiciBul(bugunIso);
@@ -53,7 +57,7 @@ export default async function PanoPage() {
         </div>
 
         <div className="pano-stat-grid">
-          <div className="card pano-stat musteri">
+          <Link href={"/musteriler"} className="card pano-stat musteri">
             <div className="pano-stat-icon">
               <Icon name="users" />
             </div>
@@ -61,8 +65,8 @@ export default async function PanoPage() {
             <div className="v">
               {erisilenMusteriler.length} <span className="u">müşteri</span>
             </div>
-          </div>
-          <div className="card pano-stat parsel">
+          </Link>
+          <Link href={"/musteriler"} className="card pano-stat parsel">
             <div className="pano-stat-icon">
               <Icon name="map" />
             </div>
@@ -70,8 +74,8 @@ export default async function PanoPage() {
             <div className="v">
               {parselMap.size} <span className="u">parsel</span>
             </div>
-          </div>
-          <div className="card pano-stat kayit">
+          </Link>
+          <Link href={"/kayitlar"} className="card pano-stat kayit">
             <div className="pano-stat-icon">
               <Icon name="table" />
             </div>
@@ -79,8 +83,8 @@ export default async function PanoPage() {
             <div className="v">
               {buHaftaKayitSayisi} <span className="u">kayıt</span>
             </div>
-          </div>
-          <div className="card pano-stat gorev">
+          </Link>
+          <Link href={gorevHref} className="card pano-stat gorev">
             <div className="pano-stat-icon">
               <Icon name="check" />
             </div>
@@ -88,7 +92,7 @@ export default async function PanoPage() {
             <div className="v">
               {acikGorevler.length} <span className="u">bekliyor</span>
             </div>
-          </div>
+          </Link>
         </div>
 
         <div className="pano-grid">
