@@ -22,7 +22,17 @@ export function Sidebar({ user }: { user: { ad: string; rol: "admin" | "muhendis
     .join("")
     .toUpperCase();
 
+  const mobilItems = [
+    ...NAV_ITEMS,
+    ...(user.rol === "admin"
+      ? [{ href: "/kullanicilar", label: "Kullanıcılar", icon: "users", match: (p: string) => p.startsWith("/kullanicilar") }]
+      : []),
+    { href: "/revizeler", label: "Revizeler", icon: "clipboard", match: (p: string) => p.startsWith("/revizeler") },
+    { href: "/ayarlar", label: "Ayarlar", icon: "settings", match: (p: string) => p.startsWith("/ayarlar") },
+  ];
+
   return (
+    <>
     <aside className="sidebar">
       <Link href="/panel" className="brand-mark">
         <img src="/ortatepeler-logo.png" alt="Ortatepeler Zirai Danışmanlık" className="brand-mark-logo" />
@@ -66,5 +76,15 @@ export function Sidebar({ user }: { user: { ad: string; rol: "admin" | "muhendis
         </form>
       </div>
     </aside>
+    {/* ≤900px'te sol menü gizlenir; yerine alt sekme çubuğu görünür. */}
+    <nav className="mobil-nav" aria-label="Ana menü">
+      {mobilItems.map((item) => (
+        <Link key={item.href} href={item.href} aria-current={item.match(pathname) ? "page" : undefined}>
+          <Icon name={item.icon} />
+          <span>{item.label}</span>
+        </Link>
+      ))}
+    </nav>
+    </>
   );
 }

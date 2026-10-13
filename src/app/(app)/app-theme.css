@@ -251,9 +251,17 @@ table.data-table { width: 100%; border-collapse: collapse; min-width: 720px; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
 
+.mobil-nav { display: none; }
 @media (max-width: 900px) {
   .app-shell { grid-template-columns: 1fr; }
   .sidebar { display: none; }
+  .app-main { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+  .mobil-nav { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--brand-deep); padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); gap: 2px; overflow-x: auto; box-shadow: 0 -4px 16px rgba(0,0,0,0.14); scrollbar-width: none; }
+  .mobil-nav::-webkit-scrollbar { display: none; }
+  .mobil-nav a { flex: 1 0 64px; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 4px; border-radius: var(--radius-s); text-decoration: none; color: #a2b19e; font-size: 10.5px; font-weight: 500; white-space: nowrap; }
+  .mobil-nav a .icon { width: 20px; height: 20px; }
+  .mobil-nav a[aria-current="page"] { background: var(--brand-deep-2); color: #fff; }
+  .mobil-nav a[aria-current="page"] .icon { color: #7fd9c7; }
   .form-layout-panel { grid-template-columns: 1fr; }
   .topbar-cikis { display: block; }
   .topbar-right { gap: 10px; padding: 6px 8px 6px 12px; }
@@ -277,5 +285,10 @@ table.data-table { width: 100%; border-collapse: collapse; min-width: 720px; }
 .yb-revize textarea { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 13px; resize: vertical; }
 .yb-hata { margin: 0; font-size: 12.5px; color: #b42318; }
 .yb-basari { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; padding: 14px; border-radius: 12px; background: #eef8f1; border: 1px solid #c9e6d3; font-size: 13px; }
-@media (max-width: 760px) { .yb-fab { right: 16px; bottom: 16px; } .yb-panel { right: 16px; bottom: 16px; } }
+@media (max-width: 760px) { .yb-fab { right: 16px; } .yb-panel { right: 16px; } }
+/* Mobilde alt menü çubuğunun (≈64px) üstünde dursun */
+@media (max-width: 900px) {
+  .yb-fab { bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .yb-panel { bottom: calc(76px + env(safe-area-inset-bottom)); max-height: calc(100dvh - 100px - env(safe-area-inset-bottom)); }
+}
 @media print { .yb-fab, .yb-panel { display: none; } }
