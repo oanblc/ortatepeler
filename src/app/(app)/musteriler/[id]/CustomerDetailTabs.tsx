@@ -313,6 +313,21 @@ export function CustomerDetailTabs({
     return () => document.removeEventListener("mousedown", disariTiklandi);
   }, [parselDropdownAcik]);
 
+  // Uygulamalar sekmesi: 17 parselli müşteride her parsel için 4 kart alt alta
+  // dizilince sayfa çok uzuyordu — sadece seçilen parseller gösterilir
+  // (varsayılan: ilk parsel).
+  const [uygParselIds, setUygParselIds] = useState<Set<string>>(() => new Set(parcels[0] ? [parcels[0].id] : []));
+  const [uygParselDropdownAcik, setUygParselDropdownAcik] = useState(false);
+  const uygParselDropdownRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!uygParselDropdownAcik) return;
+    function disariTiklandi(e: MouseEvent) {
+      if (uygParselDropdownRef.current && !uygParselDropdownRef.current.contains(e.target as Node)) setUygParselDropdownAcik(false);
+    }
+    document.addEventListener("mousedown", disariTiklandi);
+    return () => document.removeEventListener("mousedown", disariTiklandi);
+  }, [uygParselDropdownAcik]);
+
   // Ziyaret Kaydı sekmesindeki "kaydedilenler" listesi — ayrı bir veri
   // kaynağı DEĞİL, aynı `records` prop'u üzerinde tarih aralığı + serbest
   // metin aramasıyla filtreleniyor (bu müşterinin TÜM parsellerindeki kayıtlar,
@@ -1436,9 +1451,56 @@ export function CustomerDetailTabs({
             </div>
           ) : (
             <div className="uygulamalar-grup-list">
-              {parcels.map((parcel) => (
+              {parcels.length > 1 && (
+                <div className="dropdown" ref={uygParselDropdownRef} style={{ maxWidth: 360 }}>
+                  <button
+                    type="button"
+                    className={`dropdown-btn${uygParselIds.size > 0 ? " dropdown-btn-aktif" : ""}`}
+                    onClick={() => setUygParselDropdownAcik((a) => !a)}
+                  >
+                    {uygParselIds.size === 0
+                      ? "Parsel seç"
+                      : uygParselIds.size === parcels.length
+                        ? `Tüm parseller (${parcels.length})`
+                        : uygParselIds.size === 1
+                          ? parcels.find((p) => uygParselIds.has(p.id))?.ad
+                          : `${uygParselIds.size} parsel seçili`}
+                    <Icon name="chevron-down" className="icon" />
+                  </button>
+                  {uygParselDropdownAcik && (
+                    <div className="dropdown-panel">
+                      <div className="link-row" style={{ padding: "2px 8px 6px" }}>
+                        <a onClick={() => setUygParselIds(new Set(parcels.map((p) => p.id)))}>Tümünü Seç</a>
+                        <span className="sep">·</span>
+                        <a onClick={() => setUygParselIds(new Set())}>Temizle</a>
+                      </div>
+                      {parcels.map((parcel) => (
+                        <div key={parcel.id} className="dropdown-secenek parsel-dropdown-secenek">
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={uygParselIds.has(parcel.id)}
+                              onChange={(e) =>
+                                setUygParselIds((onceki) => {
+                                  const yeni = new Set(onceki);
+                                  if (e.target.checked) yeni.add(parcel.id);
+                                  else yeni.delete(parcel.id);
+                                  return yeni;
+                                })
+                              }
+                            />
+                            {parcel.ad}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {uygParselIds.size === 0 && parcels.length > 1 && <p className="well-empty-note">Uygulamalarını görmek için yukarıdan en az bir parsel seçin.</p>}
+              {parcels.filter((p) => parcels.length === 1 || uygParselIds.has(p.id)).map((parcel) => (
                 <div key={parcel.id} className="uygulamalar-grup">
-                  {parcels.length > 1 && <h3 className="uygulamalar-grup-baslik">{parcel.ad}</h3>}
+                  {parcels.length > 1 && uygParselIds.size > 1 && <h3 className="uygulamalar-grup-baslik">{parcel.ad}</h3>}
                   <div className="app-grid">
                     <div className="card app-card">
                       <div className="app-card-head">
