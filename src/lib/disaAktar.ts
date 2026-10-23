@@ -381,7 +381,11 @@ async function raporAntetliPdfBelgesiOlustur(sayfalar: RaporSayfaGirdisi[]): Pro
           lineWidth: { top: 0, left: 0, right: 0, bottom: 0.5 },
           lineColor: [28, 42, 30],
         },
-        horizontalPageBreak: true,
+        // Yatay sayfa bölünmesi SADECE geniş tablolar (Yaprak Gübreleme Planı) için:
+        // az kolonlu tablolarda açık kalırsa uzun metinli sütun (ör. Gözlem) doğal
+        // genişliğinde ayrı sayfaya taşıyor; kapalıyken sütunlar sayfa genişliğine
+        // sığacak şekilde daraltılıp metin satır kırar.
+        horizontalPageBreak: genisTabloMu,
         horizontalPageBreakRepeat: sabitSutunSayisi ? Array.from({ length: sabitSutunSayisi }, (_, i) => i) : undefined,
         margin: { top: ANTET_YUKSEKLIK + 4, bottom: 14, left: 8, right: 8 },
         didDrawPage: antetVeAltbilgiCiz,
