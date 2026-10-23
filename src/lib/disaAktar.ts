@@ -397,7 +397,7 @@ async function raporAntetliPdfBelgesiOlustur(sayfalar: RaporSayfaGirdisi[]): Pro
         const yuklenenler = (await Promise.all(fotograflar.map(async (f) => ({ ...f, gorsel: await pdfIcinGorselYukle(f.src) })))).filter(
           (f): f is typeof f & { gorsel: NonNullable<typeof f.gorsel> } => f.gorsel !== null,
         );
-        const SUTUN = 2;
+        const SUTUN = 3;
         const bosluk = 6;
         const hucreGenislik = (pageWidth - 16 - bosluk * (SUTUN - 1)) / SUTUN;
         const MAKS_YUKSEKLIK = 68;
