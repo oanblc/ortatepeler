@@ -193,6 +193,8 @@ export interface RaporSayfaBolumu {
   /** `tablo` yoksa (bu dönemde veri girilmemiş) önizlemedeki BosNot metni — PDF'te tablo yerine basılır. */
   bosMesaj?: string;
   sabitSutunSayisi?: number;
+  /** Bölümün altına basılacak saha fotoğrafları (önizlemedeki `data-rapor-foto` <img>'leri). */
+  fotograflar?: { src: string; etiket: string }[];
 }
 
 export interface RaporSayfaGirdisi {
@@ -201,6 +203,31 @@ export interface RaporSayfaGirdisi {
   altBaslik: string;
   metaSatirlari: { k: string; v: string }[];
   bolumler: RaporSayfaBolumu[];
+}
+
+// Saha fotoğrafını (giriş yapmış kullanıcının oturumuyla /uploads'tan) çekip PDF'e
+// gömülebilecek küçültülmüş JPEG'e çevirir. Yüklenemeyen fotoğraf raporu bozmaz, atlanır.
+async function pdfIcinGorselYukle(src: string): Promise<{ data: string; w: number; h: number } | null> {
+  try {
+    const res = await fetch(src);
+    if (!res.ok) return null;
+    const bitmap = await createImageBitmap(await res.blob(), { imageOrientation: "from-image" });
+    const oran = Math.min(1, 1100 / Math.max(bitmap.width, bitmap.height));
+    const w = Math.round(bitmap.width * oran);
+    const h = Math.round(bitmap.height * oran);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    bitmap.close();
+    return { data: canvas.toDataURL("image/jpeg", 0.82), w, h };
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -257,7 +284,7 @@ async function raporAntetliPdfBelgesiOlustur(sayfalar: RaporSayfaGirdisi[]): Pro
     doc.setTextColor(0, 0, 0);
   }
 
-  sayfalar.forEach((sayfa, sayfaIndex) => {
+  for (const [sayfaIndex, sayfa] of sayfalar.entries()) {
     if (sayfaIndex > 0) doc.addPage();
 
     let y = ANTET_YUKSEKLIK + 20;
@@ -298,7 +325,7 @@ async function raporAntetliPdfBelgesiOlustur(sayfalar: RaporSayfaGirdisi[]): Pro
       y += 2;
     }
 
-    sayfa.bolumler.forEach(({ baslik, tablo, bosMesaj, sabitSutunSayisi }) => {
+    for (const { baslik, tablo, bosMesaj, sabitSutunSayisi, fotograflar } of sayfa.bolumler) {
       doc.setFont("NotoSans", "bold");
       doc.setFontSize(9.5);
       doc.setTextColor(18, 32, 22);
@@ -316,7 +343,7 @@ async function raporAntetliPdfBelgesiOlustur(sayfalar: RaporSayfaGirdisi[]): Pro
         doc.text(bosMesaj ?? "Veri yok.", 8, y + 6);
         doc.setTextColor(0, 0, 0);
         y += 14;
-        return;
+        continue;
       }
 
       const { grid, theadSatirSayisi } = tabloyuGrideAc(tablo);
@@ -361,11 +388,65 @@ async function raporAntetliPdfBelgesiOlustur(sayfalar: RaporSayfaGirdisi[]): Pro
       });
 
       y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 9;
-    });
+
+      if (fotograflar?.length) {
+        const yuklenenler = (await Promise.all(fotograflar.map(async (f) => ({ ...f, gorsel: await pdfIcinGorselYukle(f.src) })))).filter(
+          (f): f is typeof f & { gorsel: NonNullable<typeof f.gorsel> } => f.gorsel !== null,
+        );
+        const SUTUN = 2;
+        const bosluk = 6;
+        const hucreGenislik = (pageWidth - 16 - bosluk * (SUTUN - 1)) / SUTUN;
+        const MAKS_YUKSEKLIK = 68;
+        const ALT_SINIR = pageHeight - 14;
+        const yeniSayfa = () => {
+          doc.addPage();
+          antetVeAltbilgiCiz();
+          y = ANTET_YUKSEKLIK + 12;
+        };
+        const baslikBas = (metin: string) => {
+          doc.setFont("NotoSans", "bold");
+          doc.setFontSize(9.5);
+          doc.setTextColor(18, 32, 22);
+          doc.text(metin.toLocaleUpperCase("tr"), 8, y + 4);
+          doc.setDrawColor(18, 32, 22);
+          doc.setLineWidth(0.5);
+          doc.line(8, y + 6, pageWidth - 8, y + 6);
+          doc.setTextColor(0, 0, 0);
+          y += 10;
+        };
+
+        if (yuklenenler.length > 0) {
+          if (y + 16 + MAKS_YUKSEKLIK > ALT_SINIR) yeniSayfa();
+          baslikBas("Fotoğraflar");
+          for (let i = 0; i < yuklenenler.length; i += SUTUN) {
+            const satir = yuklenenler.slice(i, i + SUTUN).map((f) => {
+              const oran = Math.min(hucreGenislik / f.gorsel.w, MAKS_YUKSEKLIK / f.gorsel.h);
+              return { ...f, pw: f.gorsel.w * oran, ph: f.gorsel.h * oran };
+            });
+            const satirYukseklik = Math.max(...satir.map((f) => f.ph)) + 7;
+            if (y + satirYukseklik > ALT_SINIR) {
+              yeniSayfa();
+              baslikBas("Fotoğraflar (devam)");
+            }
+            satir.forEach((f, k) => {
+              const x = 8 + k * (hucreGenislik + bosluk);
+              doc.addImage(f.gorsel.data, "JPEG", x, y, f.pw, f.ph);
+              doc.setFont("NotoSans", "normal");
+              doc.setFontSize(8);
+              doc.setTextColor(90, 98, 84);
+              doc.text(f.etiket, x, y + f.ph + 4, { maxWidth: hucreGenislik });
+              doc.setTextColor(0, 0, 0);
+            });
+            y += satirYukseklik + 3;
+          }
+          y += 4;
+        }
+      }
+    }
 
     // Bölüm hiç yoksa (ör. veri bulunamadı) antet/altbilgi yine de basılsın.
     if (sayfa.bolumler.length === 0) antetVeAltbilgiCiz();
-  });
+  }
 
   return doc;
 }
@@ -397,9 +478,18 @@ export function govdeBolumlerindenTopla(konteyner: HTMLElement): RaporSayfaBolum
     const baslikEl = bolum.querySelector(".govde-bolum-baslik");
     const baslik = baslikEl?.textContent?.trim() || "Tablo";
     const tablo = bolum.querySelector("table");
+    const fotograflar = Array.from(bolum.querySelectorAll<HTMLImageElement>("img[data-rapor-foto]")).map((img) => ({
+      src: img.currentSrc || img.src,
+      etiket: img.getAttribute("data-rapor-foto") || "",
+    }));
     if (tablo) {
       const sabitStr = bolum.getAttribute("data-sabit-sutun");
-      sonuc.push({ baslik, tablo: tablo as HTMLTableElement, sabitSutunSayisi: sabitStr ? Number(sabitStr) : undefined });
+      sonuc.push({
+        baslik,
+        tablo: tablo as HTMLTableElement,
+        sabitSutunSayisi: sabitStr ? Number(sabitStr) : undefined,
+        fotograflar: fotograflar.length > 0 ? fotograflar : undefined,
+      });
       return;
     }
     // Tablo yok — bu dönemde veri girilmemiş demektir (bkz. BosNot). Önizlemedeki

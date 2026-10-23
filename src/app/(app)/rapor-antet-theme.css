@@ -125,6 +125,10 @@ table.rapor-tablo tr:last-child td { border-bottom: none; }
 .rapor-govde .pill.good { background: var(--good-tint); color: var(--good); }
 .rapor-govde .pill.crit { background: var(--crit-tint); color: var(--crit); }
 .rapor-govde .pill.amber { background: var(--amber-tint); color: var(--amber); }
+.rapor-foto-izgara { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.rapor-foto { margin: 0; break-inside: avoid; }
+.rapor-foto img { display: block; width: 100%; height: 170px; object-fit: cover; border-radius: 4px; background: var(--line-soft); }
+.rapor-foto figcaption { font-size: 11px; color: var(--muted); padding-top: 5px; }
 .rapor-bos-not { font-size: 12px; color: var(--muted); padding: 14px 2px; margin: 0; }
 
 .rapor-altbilgi { margin-top: auto; border-top: 1px solid var(--line-soft); padding: 16px 44px; display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; color: var(--muted); }

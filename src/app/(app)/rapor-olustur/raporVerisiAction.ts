@@ -70,6 +70,7 @@ interface GunlukSatir {
   recete: string;
   donem: string;
   oncelikPuani: number | null;
+  gorseller: string[];
 }
 
 export type RaporGorunumVerisi =
@@ -215,6 +216,8 @@ export async function raporVerisiGetir(params: RaporVerisiParams): Promise<Rapor
             recete: (ilacKaydi?.values?.recete as string) || "",
             donem: anaKayit.fenolojikDonem || "",
             oncelikPuani: anaKayit.oncelikPuani ?? null,
+            // Aynı ziyaretin kayıtları aynı fotoğraf listesini paylaşır — tekrarlar tek sayılır.
+            gorseller: Array.from(new Set(gununKayitlari.flatMap((r) => r.gorseller ?? []))),
           });
         }
         const sonraki = new Date(cursor + "T00:00:00Z");

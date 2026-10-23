@@ -986,7 +986,7 @@ function OzetIcerik({ haftalar }: { haftalar: import("@/lib/haftalikRapor").Haft
 function GunlukSahaIcerik({
   satirlar,
 }: {
-  satirlar: { tarih: string; no: number; parcelAdi: string; durum: string; gozlem: string; recete: string; donem: string; oncelikPuani: number | null }[];
+  satirlar: { tarih: string; no: number; parcelAdi: string; durum: string; gozlem: string; recete: string; donem: string; oncelikPuani: number | null; gorseller: string[] }[];
 }) {
   if (satirlar.length === 0) return <BosNot>Seçili tarih aralığında hiçbir parselde kayıt girilmemiş.</BosNot>;
   return (
@@ -1023,6 +1023,27 @@ function GunlukSahaIcerik({
           })}
         </tbody>
       </table>
+      <FotoBolumu fotograflar={satirlar.flatMap((s) => s.gorseller.map((src) => ({ src, etiket: `${formatKisaTarih(s.tarih)} · ${s.parcelAdi}` })))} />
+    </div>
+  );
+}
+
+// Kayıtlara eklenen saha fotoğrafları — önizlemede ızgara, PDF'te disaAktar.ts
+// `data-rapor-foto` işaretli <img>'leri okuyup aynı sırayla sayfaya basar.
+function FotoBolumu({ fotograflar }: { fotograflar: { src: string; etiket: string }[] }) {
+  if (fotograflar.length === 0) return null;
+  return (
+    <div className="rapor-foto-bolumu" style={{ marginTop: 26 }}>
+      <div className="govde-bolum-baslik">Fotoğraflar</div>
+      <div className="rapor-foto-izgara">
+        {fotograflar.map((f, i) => (
+          <figure className="rapor-foto" key={`${f.src}-${i}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={f.src} alt={f.etiket} data-rapor-foto={f.etiket} />
+            <figcaption>{f.etiket}</figcaption>
+          </figure>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1338,6 +1359,9 @@ function ZiyaretIcerik({
           })}
         </tbody>
       </table>
+      <FotoBolumu
+        fotograflar={kayitlar.flatMap((k) => (k.gorseller ?? []).map((src) => ({ src, etiket: `${formatKayitTarihi(k.tarih)} · ${parcelAdMap[k.parcelId] ?? "—"}` })))}
+      />
     </div>
   );
 }
